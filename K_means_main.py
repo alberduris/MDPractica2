@@ -96,6 +96,31 @@ def comprobarUmbral(umbral):
         print "No has introducido un numero como constante del criterio de convergencia"
         return False #la cte del criterio de convergencia nunca va a ser negativa.
         #esta forma de programar no es muy ortodoxa pero como solo comprobamos inputs vale.
+        
+def comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion):
+    #Comprobación criterio de terminación
+    #Si el criterio es n entonces comprobar numero fijo de it.
+    #Si el criterio es d entonces comprobar umbral
+        if (crit == "n"):#Numero de iteraciones fijo
+        
+            if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) 
+            and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) 
+            and comprobarCte(terminacion)):
+                return True
+            else:
+                return False
+                
+        else:
+            
+            if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) 
+            and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) 
+            and comprobarUmbral(terminacion)):
+                #importar desde otro archivo .py
+                return True
+            else:
+                return False
+    
+    
 
 if __name__=="__main__":
     
@@ -112,7 +137,7 @@ if __name__=="__main__":
         print "5to argumento: criterio de convergencia 'n' o 'd'."
         print "6to argumento: Constante o umbral correspondiente al criterio de convergencia."
     
-        print "biblia sobre cada una de las opciones..."
+        
         
 
     else:
@@ -127,24 +152,17 @@ if __name__=="__main__":
         terminacion = sys.argv[6]
         #mas las instancias!!.....
         
-        #Comprobación criterio de terminación
-        #Si el criterio es n entonces comprobar numero fijo de it.
-        #Si el criterio es d entonces comprobar umbral
-        if (crit == "n"):#Numero de iteraciones fijo
+        if(comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion)):  
+            km = K_means.K_means(k,ini,minkwsk,inter,crit,terminacion)
+            km.initializeInstances()
+            
         
-            if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) 
-            and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) 
-            and comprobarCte(terminacion)):
-                #importar desde otro archivo .py
-                K_means.K_means(k,ini,minkwsk,inter,crit,terminacion) 
-            
-        else:
-            
-            if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) 
-            and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) 
-            and comprobarUmbral(terminacion)):
-                #importar desde otro archivo .py
-                K_means.K_means(k,ini,minkwsk,inter,crit,terminacion) 
+        
+                
+                
+                
+        
+        
             
             
             
