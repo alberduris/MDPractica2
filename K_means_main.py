@@ -21,10 +21,13 @@ def comprobarOpcionInicializacion(opc):
 def comprobarEntero(numClusters):
     try:
         numC = int(numClusters)
+        if (numC == 0):
+            print "El numero de clusters no puede ser cero, introduce un numero de clusters entero positivo mayor que cero"
+            return False
         return numC
     except ValueError:
         print "No has introducido un numero entero como numero de clusters"
-        return -1 #el numero de clusters nunca va a ser negativo.
+        return False #el numero de clusters nunca va a ser negativo.
         #esta forma de programar no es muy ortodoxa pero como solo comprobamos inputs vale.
 """
 @post: Comprueba que el parámetro para calcular la distancia Minkowski es correcto (cualquier float >= 0)
@@ -32,17 +35,20 @@ def comprobarEntero(numClusters):
 def comprobarFlotante(distanciaMinkowski):
     try:
         disM = float(distanciaMinkowski)
+        if(disM <= 0):
+            print "El parámetro p de la distancia Minkowski debe ser p > 0"
+            return False
         return disM
     except ValueError:
-        print "no has introducido un numero como distancia de minkowski"
-        return -1 #la distancia de minkowski nunca va a ser negativa.
+        print "No has introducido un numero como distancia de minkowski"
+        return False #la distancia de minkowski nunca va a ser negativa.
         #esta forma de programar no es muy ortodoxa pero como solo comprobamos inputs vale.
 """
 @post: Comprueba que se ha elegido una de las opciones disponibles para la distancia intergrupal siendo:
 s = Single-Link
 c = Complete-Link
 """
-def comprobarDistanciaIntergruapl(distanciaIntergrupal):
+def comprobarDistanciaIntergrupal(distanciaIntergrupal):
     if(distanciaIntergrupal!="s" and distanciaIntergrupal!="c"):
         print "opcion incorrecta, solo (s) o (c)"
         return False
@@ -76,7 +82,7 @@ def comprobarCte(cte):
 if __name__=="__main__":
     
     
-    print 'K-means'
+    print '***K-means***'
     if len(sys.argv)!=7:
         print "Numero de argumentos: " + str(len(sys.argv))
         print "Error en el numero de argumentos. Deben ser 7."
@@ -91,7 +97,8 @@ if __name__=="__main__":
         print "biblia sobre cada una de las opciones..."
 
     else:
-
+        
+        
         #asignaciones
         k = sys.argv[1]
         ini = sys.argv[2]
@@ -100,8 +107,9 @@ if __name__=="__main__":
         crit = sys.argv[5]
         cte = sys.argv[6]
         #mas las instancias!!.....
+        
 
-    if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) and comprobarFlotante(minkwsk) and comprobarDistanciaIntergruapl(inter) and comprobarCriterioConvergencia(crit) and comprobarCte(cte)):
+        if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) and comprobarCriterioConvergencia(crit) and comprobarCte(cte)):
 
-        K_means.K_means(k,ini,minkwsk,inter,crit,cte) #importar desde otro archivo .py
+            K_means.K_means(k,ini,minkwsk,inter,crit,cte) #importar desde otro archivo .py
 
