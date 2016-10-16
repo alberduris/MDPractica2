@@ -60,7 +60,7 @@ n = Número de iteraciones fijo
 d = Disimilitud
 """
 def comprobarCriterioConvergencia(criterioConvergencia):
-    #TODO: Recoger y comprobar el umbral de disimilitud
+    
     if(criterioConvergencia!="n" and criterioConvergencia!="d"):
         print "opcion incorrecta, solo (n) o (d)"
         return False
@@ -72,12 +72,30 @@ def comprobarCriterioConvergencia(criterioConvergencia):
 def comprobarCte(cte):
     try:
         const = int(cte)
+        if(const <= 0):
+            print "El numero de iteraciones fijas debe ser > 0"
+            return False
         return const
     except ValueError:
         print "No has introducido un numero como constante del criterio de convergencia"
-        return -1 #la cte del criterio de convergencia nunca va a ser negativa.
+        return False #la cte del criterio de convergencia nunca va a ser negativa.
         #esta forma de programar no es muy ortodoxa pero como solo comprobamos inputs vale.
 
+"""
+@post: Comprobar que se ha introducido un numero como constante para el criterio de convergencia (En caso de haber elegido "Numero de iteraciones fijo")
+"""
+def comprobarUmbral(umbral):
+    try:
+        umbral = float(umbral)
+        if(umbral <= 0):
+            print "El umbral debe ser > 0"
+            return False
+            
+        return umbral
+    except ValueError:
+        print "No has introducido un numero como constante del criterio de convergencia"
+        return False #la cte del criterio de convergencia nunca va a ser negativa.
+        #esta forma de programar no es muy ortodoxa pero como solo comprobamos inputs vale.
 
 if __name__=="__main__":
     
@@ -92,9 +110,10 @@ if __name__=="__main__":
         print "3er argumento: distancia de minkowski (numero real)."
         print "4to argumento: distancia intergrupal 's' o 'c'."
         print "5to argumento: criterio de convergencia 'n' o 'd'."
-        print "6to argumento: constante correspondiente al criterio de convergencia."
+        print "6to argumento: Constante o umbral correspondiente al criterio de convergencia."
     
         print "biblia sobre cada una de las opciones..."
+        
 
     else:
         
@@ -105,11 +124,32 @@ if __name__=="__main__":
         minkwsk = sys.argv[3]
         inter = sys.argv[4]
         crit = sys.argv[5]
-        cte = sys.argv[6]
+        terminacion = sys.argv[6]
         #mas las instancias!!.....
         
+        #Comprobación criterio de terminación
+        #Si el criterio es n entonces comprobar numero fijo de it.
+        #Si el criterio es d entonces comprobar umbral
+        if (crit == "n"):#Numero de iteraciones fijo
+        
+            if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) 
+            and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) 
+            and comprobarCte(terminacion)):
+                #importar desde otro archivo .py
+                K_means.K_means(k,ini,minkwsk,inter,crit,terminacion) 
+            
+        else:
+            
+            if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) 
+            and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) 
+            and comprobarUmbral(terminacion)):
+                #importar desde otro archivo .py
+                K_means.K_means(k,ini,minkwsk,inter,crit,terminacion) 
+            
+            
+            
 
-        if (comprobarEntero(k) and comprobarOpcionInicializacion(ini) and comprobarFlotante(minkwsk) and comprobarDistanciaIntergrupal(inter) and comprobarCriterioConvergencia(crit) and comprobarCte(cte)):
+        
 
-            K_means.K_means(k,ini,minkwsk,inter,crit,cte) #importar desde otro archivo .py
+        
 
