@@ -17,22 +17,58 @@ class K_means:
         
     def initializeInstances(self):
         instancesFile = open('vectors_peque.txt','r')
-        matrix = np.ndarray(shape=(100,201))    
         
-        j = -1 
+        #todo - sacar las filas (100) con la cantidad de lineas que hay en el fichero
+        #todo - sacar las columnas con splitted line o algo parecido
+        matrix = self.initializeMatrix(100,200)
+        self.imprimirMatriz(matrix)
+        
+        j = -1
         for line in instancesFile:
             j = j + 1
             splittedLine = line.split()
-            print str(j)+":"; print splittedLine
             for i in range(1,len(splittedLine)):
                 column = splittedLine[i]
-                print "i:"+str(i)+" column:"+ str(column)
-                matrix[j,i] = float(column)
-                print 'Matrix[j,i]:'+str(matrix[j,i])
+                matrix[j,i-1] = float(column)
                 
-        print matrix[99::]
-        
+        self.imprimirMatriz(matrix)
         np.savetxt('output.txt',matrix,delimiter=',')
+        
+
+    '''
+    @post: Inicializa una matriz de ceros
+    @note: Por el momento la dimension se indica 'hardcoded'
+    '''
+    def initializeMatrix(self,columns,rows):
+        matrix = np.ndarray(shape=(columns,rows))
+        matrix.fill(0)
+        return matrix        
+    
+    '''
+    @post: Imprime el shape, el size y el contenido de una matriz
+    '''
+    def imprimirMatriz(self,matrix):
+        print 'Printing matrix'        
+        print 'Matrix shape: ',
+        print matrix.shape
+        print 'Matrix size: ',
+        print matrix.size
+        for i in range (self.getNumMatrixRows(matrix)):
+            print ''
+            for j in range(self.getNumMatrixColumns(matrix)):
+                print matrix[i,j],
+                if (j != self.getNumMatrixColumns(matrix)-1):
+                    print ',',
+        print ''
+        
+    
+        
+    def getNumMatrixRows(self,matrix):
+        return len(matrix)
+        
+    def getNumMatrixColumns(self,matrix):
+        return len(matrix[0])
+            
         
                 
                 
