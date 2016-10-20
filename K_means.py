@@ -81,7 +81,7 @@ class K_means:
     @post: 
     '''      
     def getDistance(self,alfa,vector1,vector2):
-        return np.sum(np.absolute(vector1-vector2)**alfa)**(1/alfa)
+        return np.sum(np.absolute(vector1-vector2)**alfa)**(float(1)/alfa)
         
 
 #para pruebas
