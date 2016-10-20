@@ -11,10 +11,12 @@ from gensim.models import word2vec
 
 print 'Iniciando'
 
+#esto convendría hacerlo con rutas relativas 
 model = word2vec.Word2Vec.load_word2vec_format('C:/Users/Alber/Desktop/vectors.bin', binary=True)
 
 print 'Modelo cargado'
 
+#esto convendría hacerlo con rutas relativas 
 model.save_word2vec_format('C:/Users/Alber/Desktop/vectors.txt', binary=False)
 
 print 'Finalizado'

@@ -69,12 +69,28 @@ class K_means:
     def getNumMatrixColumns(self,matrix):
         return len(matrix[0])
             
+    '''
+    Quizas convendría establecer un tipo de datos propio puesto que los valores de los vectores tienen sólo 6 decimales 
+    (float16 de numpy se nos queda un poco grande) // Preguntarle a Alicia si eso le va a ahorrar tiempo al algoritmo.
+    https://docs.python.org/2/extending/newtypes.html
+    '''    
+
+    '''
+    @pre: alfa numero real no negativo, vectores 1 y 2 del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
+    @note: interesa que este metodo sea muy eficiente, surgen muchas dudas
+    @post: 
+    '''      
+    def getDistance(self,alfa,vector1,vector2):
+        return np.sum(np.absolute(vector1-vector2)**alfa)**(1/alfa)
         
-                
-                
-            
-                
 
-    
-
+#para pruebas
+if __name__=="__main__":
+        vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
+        vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
+        k = K_means(1,2,3,4,5,6)
+        dist = K_means.getDistance(k,1,vec1,vec2)
+        print "distancia: " + str(dist)
+        dist = K_means.getDistance(k,2,vec1,vec2)
+        print "distancia: " + str(dist)
 
