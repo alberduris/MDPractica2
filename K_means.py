@@ -20,7 +20,7 @@ class K_means:
         
         
         matrix = self.initializeMatrix(self.getNumFileRows(instancesFileName),
-                                       self.getNumFileColumns(instancesFileName))
+                                       self.getNumFileColumns(instancesFileName)-1)
         
         j = -1
         for line in instancesFile:
@@ -31,7 +31,7 @@ class K_means:
                 matrix[j,i-1] = float(column)
                 
         self.imprimirMatriz(matrix)
-        np.savetxt('output.txt',matrix,delimiter=',')
+        return matrix
         
 
     '''
@@ -100,7 +100,13 @@ class K_means:
         return len(splLine)
         
        
-      
+    '''
+    @post: Devuelve el vector de tipo np.array que esta en la fila i de la matriz matrix
+    '''
+    def getVector(self,matrix,i):
+        print matrix[i,::] 
+
+        
             
     '''
     Quizas convendría establecer un tipo de datos propio puesto que los valores de los vectores tienen sólo 6 decimales 
@@ -122,10 +128,15 @@ class K_means:
 #para pruebas
 if __name__=="__main__":
     print 'K_means : main'
-    
+        
     k = K_means(1,2,3,4,5,6)
-    print k.getNumFileRows("vectors_peque.txt")
-    print k.getNumFileColumns("vectors_peque.txt")
+    M = k.initializeInstances("vectors_muy_peque.txt")
+    
+    vector1 = k.getVector(M,3)
+    #print vector1
+    
+    
+
 
 
 
