@@ -4,6 +4,9 @@
 """
 @authors: Julen, Alberto, Till
 
+TODO: DISTANCIAS INTERGRUPALES
+TODO: INICIALIZACION ALEATORIA
+TODO: K-MEANS JAJA
 """
 
 import numpy as np
