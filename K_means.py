@@ -15,13 +15,12 @@ class K_means:
     def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ): #instances,):
         print "trabajo por hacer D:"
         
-    def initializeInstances(self):
-        instancesFile = open('vectors_peque.txt','r')
+    def initializeInstances(self,instancesFileName):
+        instancesFile = open(instancesFileName,'r')
         
-        #todo - sacar las filas (100) con la cantidad de lineas que hay en el fichero
-        #todo - sacar las columnas con splitted line o algo parecido
-        matrix = self.initializeMatrix(100,200)
-        self.imprimirMatriz(matrix)
+        
+        matrix = self.initializeMatrix(self.getNumFileRows(instancesFileName),
+                                       self.getNumFileColumns(instancesFileName))
         
         j = -1
         for line in instancesFile:
@@ -53,26 +52,62 @@ class K_means:
         print matrix.shape
         print 'Matrix size: ',
         print matrix.size
-        for i in range (self.getNumMatrixRows(matrix)):
+        
+        numMatrixRows = self.getNumMatrixRows(matrix)
+        numMatrixColumns = self.getNumMatrixColumns(matrix)      
+        
+        for i in range (numMatrixRows):
             print ''
-            for j in range(self.getNumMatrixColumns(matrix)):
+            for j in range(numMatrixColumns):
+                if(i == 0 and j == 0):
+                    print '{',
                 print matrix[i,j],
-                if (j != self.getNumMatrixColumns(matrix)-1):
+                if(i == numMatrixRows-1 and j == numMatrixColumns-1):
+                    print '}',
+                if (j != numMatrixColumns-1):
                     print ',',
         print ''
         
     
-        
+     
+    '''
+    @post: Devuelve en numero de filas de la matriz pasada por param
+    '''
     def getNumMatrixRows(self,matrix):
         return len(matrix)
-        
+    '''
+    @post: Devuelve en numero de columnas de la matriz pasada por param
+    ''' 
     def getNumMatrixColumns(self,matrix):
         return len(matrix[0])
+
+    '''
+    @post: Devuelve en numero de lineas del fichero pasado por param
+    '''  
+    def getNumFileRows(self,file_name):
+        with open(file_name) as instancesFile:
+            for i,line in enumerate(instancesFile):
+                pass
+        return i+1
+        
+    '''
+    @post: Devuelve en numero de columnas del fichero pasado por param
+    '''  
+    def getNumFileColumns(self,file_name):
+        instancesFile = open(file_name,'r')        
+        line = instancesFile.readline()
+        splLine = line.split()
+        return len(splLine)
+        
+       
+      
             
     '''
     Quizas convendría establecer un tipo de datos propio puesto que los valores de los vectores tienen sólo 6 decimales 
     (float16 de numpy se nos queda un poco grande) // Preguntarle a Alicia si eso le va a ahorrar tiempo al algoritmo.
     https://docs.python.org/2/extending/newtypes.html
+    
+    Alber: Me parece interesante, pero quizás sea demasiado para esta práctica.
     '''    
 
     '''
@@ -86,11 +121,31 @@ class K_means:
 
 #para pruebas
 if __name__=="__main__":
-        vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
-        vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
-        k = K_means(1,2,3,4,5,6)
-        dist = K_means.getDistance(k,1,vec1,vec2)
-        print "distancia: " + str(dist)
-        dist = K_means.getDistance(k,2,vec1,vec2)
-        print "distancia: " + str(dist)
+    print 'K_means : main'
+    
+    k = K_means(1,2,3,4,5,6)
+    print k.getNumFileRows("vectors_peque.txt")
+    print k.getNumFileColumns("vectors_peque.txt")
+
+
+
+
+#Métodos para pruebas - En realidad no son métodos
+#se trata de copiar el cuerpo del método al main y ejecutar
+#pero es una manera cómoda de poner varias lineas sin
+#molestar y sin hacer un comentario multilinea feo
+def test1():
+    vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
+    vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
+    k = K_means(1,2,3,4,5,6)
+    dist = K_means.getDistance(k,1,vec1,vec2)
+    print "distancia: " + str(dist)
+    dist = K_means.getDistance(k,2,vec1,vec2)
+    print "distancia: " + str(dist)
+    
+def test2():
+    k = K_means(1,2,3,4,5,6)
+    print k.getNumFileRows("vectors_muy_peque.txt")
+    print k.getNumFileColumns("vectors_muy_peque.txt")
+    
 

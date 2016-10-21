@@ -154,7 +154,7 @@ if __name__=="__main__":
         
         if(comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion)):  
             km = K_means.K_means(k,ini,minkwsk,inter,crit,terminacion)
-            km.initializeInstances()
+            km.initializeInstances('vectors_muy_peque.txt')
             
         
         
