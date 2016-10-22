@@ -8,23 +8,32 @@ TODO: DISTANCIAS INTERGRUPALES
 TODO: INICIALIZACION ALEATORIA
 TODO: K-MEANS JAJA
 """
-
+import sys 
 import numpy as np
 import Preprocesado as Preprocesado
 
 class K_means:
-
     
-    
-    def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ): #instances,):
+   
+            
+    def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ):
         print "trabajo por hacer D:"
         
-    def initializeInstances(self,instancesFileName):
+    
+
+    '''
+    @post: Inicializa dos matrices
+        -La matriz de instancias que contiene los atributos de cada instancia (vectores de las palabras)
+        -La matriz de clusters que contiene los centroides (vectores de los centroides)
+    '''
+    def initializeMatrixes(self,instancesFileName):
         instancesFile = open(instancesFileName,'r')
         
+        numFileRows = self.getNumFileRows(instancesFileName)
+        numFileColumns = self.getNumFileColumns(instancesFileName)
         
-        matrix = self.initializeMatrix(self.getNumFileRows(instancesFileName),
-                                       self.getNumFileColumns(instancesFileName)-1)
+        #Inicializar matriz de instancias
+        instancesMatrix = self.initializeMatrix(numFileRows,numFileColumns-1)
         
         j = -1
         for line in instancesFile:
@@ -32,18 +41,19 @@ class K_means:
             splittedLine = line.split()
             for i in range(1,len(splittedLine)):
                 column = splittedLine[i]
-                matrix[j,i-1] = float(column)
+                instancesMatrix[j,i-1] = float(column)
                 
-        self.imprimirMatriz(matrix)
-        return matrix
+        #Inicializar matriz de clusters con ceros
+        clustersMatrix = self.initializeMatrix(int(sys.argv[1]),numFileColumns-1)        
+        
+        return instancesMatrix,clustersMatrix
         
 
     '''
-    @post: Inicializa una matriz de ceros
-    @note: Por el momento la dimension se indica 'hardcoded'
+    @post: Inicializa una matriz de ceros con las dimensiones pasadas por params
     '''
-    def initializeMatrix(self,columns,rows):
-        matrix = np.ndarray(shape=(columns,rows))
+    def initializeMatrix(self,rows,columns):
+        matrix = np.ndarray(shape=(rows,columns))
         matrix.fill(0)
         return matrix        
     
@@ -135,8 +145,28 @@ if __name__=="__main__":
     
     if (Preprocesado.preMain()):
         print 'Parámetros correctos'
+        
+        k = sys.argv[1]
+        ini = sys.argv[2]
+        minkwsk = sys.argv[3]
+        inter = sys.argv[4]
+        crit = sys.argv[5]
+        terminacion = sys.argv[6]
+
+        kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
+        instancesMatrix,clustersMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
+        
+        kmeans.imprimirMatriz(instancesMatrix)
+        print 'Imprimir Matriz Clusters'
+        kmeans.imprimirMatriz(clustersMatrix)
+        
+        
+        
+        
     
     else: #Parámetros incorrectos
+        
+        print ''
         
         
     

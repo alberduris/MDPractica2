@@ -139,18 +139,11 @@ def preMain():
 
     else:
         
+        if(comprobarPrincipal(sys.argv[1],sys.argv[2],sys.argv[3],sys.argv[4],sys.argv[5],sys.argv[6])):  
+            return True        
         
-        #asignaciones
-        k = sys.argv[1]
-        ini = sys.argv[2]
-        minkwsk = sys.argv[3]
-        inter = sys.argv[4]
-        crit = sys.argv[5]
-        terminacion = sys.argv[6]
-        #mas las instancias!!.....
-        
-        if(comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion)):  
-            return True
+        #if(comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion)):  
+            #return True
     
     
 
