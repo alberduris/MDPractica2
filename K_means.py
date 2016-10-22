@@ -173,11 +173,119 @@ class K_means:
     '''
     @pre: alfa numero real no negativo, vectores 1 y 2 del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
     @note: interesa que este metodo sea muy eficiente, surgen muchas dudas
-    @post: 
+    @post: la distancia de minkovski (float number) entre ambos vectores segun el parametro alfa.
     '''      
     def getDistance(self,alfa,vector1,vector2):
         return np.sum(np.absolute(vector1-vector2)**alfa)**(float(1)/alfa)
         
+    '''
+    @pre: dos conjuntos de vectores del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
+    @note: (extension de pre) estos dos conjuntos seran del tipo np.array(). (hay otra forma de establecerlos mas eficiente?)
+    @post: la distancia (float number) entre ambos conjuntos determinada por la distancia menor entre dos vectores de conjuntos diferentes.
+    '''
+    def singleLink(self,alfa,conjunto1,conjunto2):
+        distMin = self.getDistance(alfa,conjunto1[0],conjunto2[0])
+        for instance1 in conjunto1:
+            for instance2 in conjunto2:
+                dist = self.getDistance(alfa,instance1,instance2)
+                if dist < distMin:
+                    distMin = dist
+        return distMin
+    '''
+    @pre: dos conjuntos de vectores del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
+    @note: (extension de pre) estos dos conjuntos seran del tipo np.array(). (hay otra forma de establecerlos mas eficiente?)
+    @post: la distancia (float number) entre ambos conjuntos determinada por la distancia mayor entre dos vectores de conjuntos diferentes.
+    '''
+    def completeLink(self,alfa,conjunto1,conjunto2):
+        distMax = 0
+        for instance1 in conjunto1:
+            for instance2 in conjunto2:
+                dist = self.getDistance(alfa,instance1,instance2)
+                if dist > distMax:
+                    distMax = dist
+        return distMax
+
+
+
+    
+    
+    
+    
+    
+
+
+
+
+'''
+Métodos para pruebas - En realidad no son métodos
+se trata de copiar el cuerpo del método al main y ejecutar
+pero es una manera cómoda de poner varias lineas sin
+molestar y sin hacer un comentario multilinea feo
+Grande Alberto!
+'''
+def test1():
+    vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
+    vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
+    k = K_means(1,2,3,4,5,6)
+    dist = k.getDistance(1,vec1,vec2)
+    print "distancia mink alfa=1: " + str(dist)
+    dist = k.getDistance(2,vec1,vec2)
+    print "distancia mink alfa=2: " + str(dist)
+    
+def test2():
+    k = K_means(1,2,3,4,5,6)
+    print k.getNumFileRows("vectors_muy_peque.txt")
+    print k.getNumFileColumns("vectors_muy_peque.txt")
+    
+def test3():
+    k = K_means(1,2,3,4,5,6)
+    matrix = k.initializeInstances("vectors_muy_peque.txt")
+    
+    vector1 = k.getVector(matrix,3)
+    print vector1
+
+def test4():
+    k = K_means(1,2,3,4,5,6)
+    
+    #no he conseguido hacer uso de las instancias del fichero vectores_peque D: 
+    '''
+    matrix = k.initializeInstancesMatrix("vectors_peque.txt",k.getNumFileRows("vectors_peque.txt"),k.getNumFileColumns("vectors_peque.txt"))
+    print matrix[1][1:]
+    print matrix[1:][1:2]
+    conjuntoVectores1 = matrix[50:][50:]
+    conjuntoVectores2 = matrix[:50][:50]
+    '''
+    vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
+    vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
+    vec3=np.random.rand(5)
+    print vec3
+    print vec2
+    a = []
+    a.append(vec1)
+    a.append(vec2)
+    a.append(vec3)
+    conjuntoVectores1 = np.asarray(a)
+    print conjuntoVectores1
+   
+    vec4=np.random.rand(5)
+    vec5=np.random.rand(5)
+    vec6=np.random.rand(5)
+    b = []
+    b.append(vec4)
+    b.append(vec5)
+    b.append(vec6)
+    conjuntoVectores2 = np.asarray(b)
+
+    distanciaMin = k.singleLink(2,conjuntoVectores1,conjuntoVectores2)
+    distanciaMax = k.completeLink(2,conjuntoVectores1,conjuntoVectores2)
+    print "distanciaMin (singleLink): " + str(distanciaMin) #deberia dar una distancia bastante pequena porque no estoy tomando clusters reales y las instancias pueden estar muy mezcladas
+    print "distanciaMax (completeLink): " + str(distanciaMax) 
+    #no soy capaz de interpretar si los resultados son correctos, podria hacer los calculos a mano pero da pereza.
+    #entran dentro de lo razonable puesto que la min es menor que uno y la max es 2 (para la prueba que he hecho yo)
+    #dado que los randoms generados estan entre 0 y 1 no me parece muy alocado que entre 2 grupos de 3 instancias las mas alejadas esten separadas por 2 unidades.
+    
+
+
 
 #para pruebas
 if __name__=="__main__":
@@ -206,43 +314,10 @@ if __name__=="__main__":
     
     else: #Parámetros incorrectos
         
-        print ''
-        
-        
-    
-    
-    
-    
-    
+        print 'parametros incorrectos'
 
-
-
-
-'''
-Métodos para pruebas - En realidad no son métodos
-se trata de copiar el cuerpo del método al main y ejecutar
-pero es una manera cómoda de poner varias lineas sin
-molestar y sin hacer un comentario multilinea feo
-'''
-def test1():
-    vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
-    vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
-    k = K_means(1,2,3,4,5,6)
-    dist = K_means.getDistance(k,1,vec1,vec2)
-    print "distancia: " + str(dist)
-    dist = K_means.getDistance(k,2,vec1,vec2)
-    print "distancia: " + str(dist)
-    
-def test2():
-    k = K_means(1,2,3,4,5,6)
-    print k.getNumFileRows("vectors_muy_peque.txt")
-    print k.getNumFileColumns("vectors_muy_peque.txt")
-    
-def test3():
-    k = K_means(1,2,3,4,5,6)
-    matrix = k.initializeInstances("vectors_muy_peque.txt")
-    
-    vector1 = k.getVector(matrix,3)
-    print vector1
-    
-
+        '''
+        esto lo quitaremos:
+        '''
+        print 'pruebas:'
+        test4()
