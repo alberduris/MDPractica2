@@ -1,0 +1,6 @@
+Never append to numpy arrays in a loop: 
+it is the one operation that NumPy is very bad at compared with basic Python. 
+This is because you are making a full copy of the data each append,
+which will cost you quadratic time. 
+
+[extraido de stackoverflow (pregunta 31250129)]
