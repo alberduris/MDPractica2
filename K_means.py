@@ -4,8 +4,8 @@
 """
 @authors: Julen, Alberto, Till
 
+TODO: ASIGNAR CENTROIDE MÁS CERCANO MODIFICANDO LA MATRIZ DE PERTENENCIA
 TODO: DISTANCIAS INTERGRUPALES
-TODO: INICIALIZACION ALEATORIA
 TODO: K-MEANS JAJA
 """
 import sys 
@@ -34,8 +34,27 @@ class K_means:
         numFileColumns = self.getNumFileColumns(instancesFileName)
         
         #Inicializar matriz de instancias
-        instancesMatrix = self.initializeMatrix(numFileRows,numFileColumns-1)
+        instancesMatrix = self.initializeInstancesMatrix(instancesFile,numFileRows,numFileColumns-1)
         
+                
+        #Inicializar matriz de clusters con ceros
+        clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
+        
+        #Crear matriz de pertenencia
+        membershipMatrix = self.createMembershipMatrix(numFileRows,int(sys.argv[1]))
+        self.imprimirMatriz(membershipMatrix)        
+        
+        return instancesMatrix,clustersMatrix
+        
+        
+        
+
+    '''
+    @post: Inicializa la matriz de las instancias
+    '''
+    def initializeInstancesMatrix(self,instancesFile,numFileRows,numFileColumns):
+        instancesMatrix = self.initializeMatrix(numFileRows,numFileColumns)
+            
         j = -1
         for line in instancesFile:
             j = j + 1
@@ -43,20 +62,8 @@ class K_means:
             for i in range(1,len(splittedLine)):
                 column = splittedLine[i]
                 instancesMatrix[j,i-1] = float(column)
-                
-        #Inicializar matriz de clusters con ceros
-                
-        clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
-        return instancesMatrix,clustersMatrix
         
-
-    '''
-    @post: Inicializa una matriz de ceros con las dimensiones pasadas por params
-    '''
-    def initializeMatrix(self,rows,columns):
-        matrix = np.ndarray(shape=(rows,columns))
-        matrix.fill(0)
-        return matrix
+        return instancesMatrix
         
     '''
     @post: Asigna los centroides iniciales asignando como centroides la 
@@ -72,8 +79,24 @@ class K_means:
             
         return clustersMatrix
         
-        
+    '''
+    @post: Inicializa una matriz de ceros con las dimensiones pasadas por params
+    '''
+    def initializeMatrix(self,rows,columns):
+        matrix = np.ndarray(shape=(rows,columns))
+        matrix.fill(0)
+        return matrix
     
+    '''
+    @post: Crea la matriz de pertenencia inicial, con tantas columnas como clusters y 
+    tantas filas como instancias. Se rellena con ceros.
+    '''
+    def createMembershipMatrix(self,rows,columns):
+        membershipMatrix = np.ndarray(shape=(rows,columns),dtype=int)
+        membershipMatrix.fill(0)
+        return membershipMatrix
+
+     
     '''
     @post: Imprime el shape, el size y el contenido de una matriz
     '''
@@ -171,11 +194,11 @@ if __name__=="__main__":
         terminacion = sys.argv[6]
 
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix = kmeans.initializeMatrixes("vectors_muy_peque.txt")
+        instancesMatrix,clustersMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
         
-        kmeans.imprimirMatriz(instancesMatrix)
-        print 'Imprimir Matriz Clusters'
-        kmeans.imprimirMatriz(clustersMatrix)
+        #kmeans.imprimirMatriz(instancesMatrix)
+        #print 'Imprimir Matriz Clusters'
+        #kmeans.imprimirMatriz(clustersMatrix)
         
         
         
