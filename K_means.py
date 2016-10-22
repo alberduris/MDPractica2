@@ -10,6 +10,7 @@ TODO: K-MEANS JAJA
 """
 import sys 
 import numpy as np
+import numpy.random as random
 import Preprocesado as Preprocesado
 
 class K_means:
@@ -44,8 +45,8 @@ class K_means:
                 instancesMatrix[j,i-1] = float(column)
                 
         #Inicializar matriz de clusters con ceros
-        clustersMatrix = self.initializeMatrix(int(sys.argv[1]),numFileColumns-1)        
-        
+                
+        clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
         return instancesMatrix,clustersMatrix
         
 
@@ -55,7 +56,23 @@ class K_means:
     def initializeMatrix(self,rows,columns):
         matrix = np.ndarray(shape=(rows,columns))
         matrix.fill(0)
-        return matrix        
+        return matrix
+        
+    '''
+    @post: Asigna los centroides iniciales asignando como centroides la 
+    posición de k instancias al azar
+    '''
+    def setRandomCentroids(self,numFileColumns,instancesMatrix):
+        clustersMatrix = self.initializeMatrix(int(sys.argv[1]),numFileColumns)
+        
+        for i in range (0,int(sys.argv[1])):
+        
+            instanceNum = random.randint(0,self.getNumMatrixRows(instancesMatrix))
+            clustersMatrix[i,:] = self.getVector(instanceNum,instancesMatrix)
+            
+        return clustersMatrix
+        
+        
     
     '''
     @post: Imprime el shape, el size y el contenido de una matriz
@@ -117,8 +134,8 @@ class K_means:
     '''
     @post: Devuelve el vector de tipo np.array que esta en la fila i de la matriz matrix
     '''
-    def getVector(self,matrix,i):
-        print matrix[i,::] 
+    def getVector(self,i,matrix):
+        return matrix[i,::] 
 
         
             
@@ -154,7 +171,7 @@ if __name__=="__main__":
         terminacion = sys.argv[6]
 
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
+        instancesMatrix,clustersMatrix = kmeans.initializeMatrixes("vectors_muy_peque.txt")
         
         kmeans.imprimirMatriz(instancesMatrix)
         print 'Imprimir Matriz Clusters'
