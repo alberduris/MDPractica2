@@ -119,12 +119,46 @@ def comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion):
                 return True
             else:
                 return False
+                
+                
+def preMain():
+    print '***K-means***'
+    if len(sys.argv)!=7:
+        print "Numero de argumentos: " + str(len(sys.argv))
+        print "Error en el numero de argumentos. Deben ser 7."
+        print "(arg[0] -> self)"
+        print "1er argumento: numero de clusters k."
+        print "2do argumento: tipo de inicializacion; 'a','b' o 'c'."
+        print "3er argumento: distancia de minkowski (numero real)."
+        print "4to argumento: distancia intergrupal 's' o 'c'."
+        print "5to argumento: criterio de convergencia 'n' o 'd'."
+        print "6to argumento: Constante o umbral correspondiente al criterio de convergencia."
+    
+        
+        
+
+    else:
+        
+        
+        #asignaciones
+        k = sys.argv[1]
+        ini = sys.argv[2]
+        minkwsk = sys.argv[3]
+        inter = sys.argv[4]
+        crit = sys.argv[5]
+        terminacion = sys.argv[6]
+        #mas las instancias!!.....
+        
+        if(comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion)):  
+            return True
     
     
 
 if __name__=="__main__":
     
-    
+    print 'Preprocesado main'
+            
+def test1():
     print '***K-means***'
     if len(sys.argv)!=7:
         print "Numero de argumentos: " + str(len(sys.argv))

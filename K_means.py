@@ -10,6 +10,7 @@ TODO: K-MEANS JAJA
 """
 
 import numpy as np
+import Preprocesado as Preprocesado
 
 class K_means:
 
@@ -131,23 +132,28 @@ class K_means:
 #para pruebas
 if __name__=="__main__":
     print 'K_means : main'
+    
+    if (Preprocesado.preMain()):
+        print 'Parámetros correctos'
+    
+    else: #Parámetros incorrectos
         
-    k = K_means(1,2,3,4,5,6)
-    M = k.initializeInstances("vectors_muy_peque.txt")
-    
-    vector1 = k.getVector(M,3)
-    #print vector1
+        
     
     
+    
+    
+    
 
 
 
 
-
-#Métodos para pruebas - En realidad no son métodos
-#se trata de copiar el cuerpo del método al main y ejecutar
-#pero es una manera cómoda de poner varias lineas sin
-#molestar y sin hacer un comentario multilinea feo
+'''
+Métodos para pruebas - En realidad no son métodos
+se trata de copiar el cuerpo del método al main y ejecutar
+pero es una manera cómoda de poner varias lineas sin
+molestar y sin hacer un comentario multilinea feo
+'''
 def test1():
     vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
     vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
@@ -161,5 +167,12 @@ def test2():
     k = K_means(1,2,3,4,5,6)
     print k.getNumFileRows("vectors_muy_peque.txt")
     print k.getNumFileColumns("vectors_muy_peque.txt")
+    
+def test3():
+    k = K_means(1,2,3,4,5,6)
+    matrix = k.initializeInstances("vectors_muy_peque.txt")
+    
+    vector1 = k.getVector(matrix,3)
+    print vector1
     
 
