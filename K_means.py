@@ -17,8 +17,6 @@ import Preprocesado as Preprocesado
 
 class K_means:
     
-   
-            
     def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ):
         print "KMeans inicializado - Trabajo por hacer D:"
         
@@ -296,7 +294,15 @@ def test4():
     #entran dentro de lo razonable puesto que la min es menor que uno y la max es 2 (para la prueba que he hecho yo)
     #dado que los randoms generados estan entre 0 y 1 no me parece muy alocado que entre 2 grupos de 3 instancias las mas alejadas esten separadas por 2 unidades.
     
-
+def test5():
+    #Probar lo de la matriz de pertenencia
+    print 'Matriz pertenencia DESPUES: '
+    kmeans.imprimirMatriz(membershipMatrix)        
+        
+    kmeans.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
+        
+    print 'Matriz pertenencia DESPUES: '
+    kmeans.imprimirMatriz(membershipMatrix)
 
 
 #para pruebas
@@ -316,13 +322,7 @@ if __name__=="__main__":
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
         instancesMatrix,clustersMatrix,membershipMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
     
-        print 'Matriz pertenencia DESPUES: '
-        kmeans.imprimirMatriz(membershipMatrix)        
         
-        kmeans.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
-        
-        print 'Matriz pertenencia DESPUES: '
-        kmeans.imprimirMatriz(membershipMatrix)
         
         
         
