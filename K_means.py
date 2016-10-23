@@ -8,7 +8,12 @@ TODO: ??? SI HUBIERA UNA MANERA CHACHI DE HACER VARIABLES GLOBALES
 DE MANERA QUE NO TUVIERAMOS QUE ACCEDER A LOS PARAMS DE CONFIGURACION DEL 
 K MEANS MEDIANTE SYS.ARGV SERIA LA OSTIA
 
+
 TODO: K-MEANS JAJA
+    TODO: SACAR ASIGNACIONES CLUSTERS --> DADA LA MATRIZ DE PERTENENCIAS FINAL DECIR: CLUSTER 1: 'THE','ONE'
+        TODO: SACAR CLASE DADO INDICE INSTANCIA --> INSTANCIA i=125 : 'THE'
+        
+
 """
 import sys 
 import numpy as np
@@ -165,7 +170,8 @@ class K_means:
     @post: Devuelve el vector de tipo np.array que esta en la fila i de la matriz matrix
     '''
     def getVector(self,i,matrix):
-        return matrix[i,::] 
+                
+        return np.asarray(matrix[i,::])
 
         
             
@@ -219,8 +225,7 @@ class K_means:
     '''
     def closestCentroid(self,instancesMatrix,clustersMatrix,membershipMatrix):
         
-        
-        
+        membershipMatrix.fill(0)
         instanceIndex = -1
         for instance in instancesMatrix:
             instanceIndex += 1
@@ -236,6 +241,61 @@ class K_means:
             #Actualizar matriz pertenencia
             membershipMatrix[instanceIndex][clusterIndex] = 1
         
+        return membershipMatrix
+        
+    '''
+    @post: Se actualiza la matriz de clusters con los nuevos centroides de 
+    los clusters calculados a partir del promedio de la posición (vector) 
+    de las instancias que pertenecen a cada cluster. 
+    '''
+    def setUpdatedCentroids(self,instancesMatrix,clustersMatrix,membershipMatrix):
+        numRows = self.getNumMatrixRows(membershipMatrix)
+        numCols = self.getNumMatrixColumns(membershipMatrix)
+        numAtts = self.getNumMatrixColumns(instancesMatrix)        
+        
+        vectorSuma = np.ndarray(shape=(1,numAtts))
+        vectorSuma.fill(0)
+        
+        cont = 0
+        
+        for j in range (0,numCols):
+            for i in range (0,numRows):
+                if (membershipMatrix[i,j] == 1):
+                    cont += 1
+                    vectorSuma = vectorSuma + self.getVector(i,instancesMatrix)
+                    
+            newCluster = self.getMeanVector(cont,vectorSuma,numAtts)
+            clustersMatrix[j,:]=newCluster
+                    
+        return clustersMatrix
+            
+            
+    def getMeanVector(self,cont,vector,numAtts):
+        for i in range(0,numAtts):
+            vector[0,i] = vector[0,i]/cont            
+            
+        return vector
+                    
+                    
+    '''
+    @post: KMeans clustering
+    '''
+    def clustering(self,instancesMatrix,clustersMatrix,membershipMatrix):
+        
+        #Asignamos las pertenencias iniciales        
+        membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
+        
+        print 'Matriz pertenencia ANTES de comenzar: '
+        self.imprimirMatriz(membershipMatrix)
+        
+        for i in range (0,int(sys.argv[6])):
+            clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
+            membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
+            
+            print 'Matriz pertenencia en la iteración ' + str(i+1)
+            self.imprimirMatriz(membershipMatrix)
+       
+            
 
 
 '''
@@ -318,11 +378,15 @@ if __name__=="__main__":
         inter = sys.argv[4]
         crit = sys.argv[5]
         terminacion = sys.argv[6]
-
-        kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix,membershipMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
-    
         
+        
+
+        
+        kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
+        instancesMatrix,clustersMatrix,membershipMatrix = kmeans.initializeMatrixes("vectors_muy_peque.txt")
+        
+        kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix)
+           
         
         
         
