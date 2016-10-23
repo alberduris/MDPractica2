@@ -42,9 +42,9 @@ class K_means:
         
         #Crear matriz de pertenencia
         membershipMatrix = self.createMembershipMatrix(numFileRows,int(sys.argv[1]))
-        self.imprimirMatriz(membershipMatrix)        
+              
         
-        return instancesMatrix,clustersMatrix
+        return instancesMatrix,clustersMatrix,membershipMatrix
         
         
         
@@ -179,7 +179,7 @@ class K_means:
         return np.sum(np.absolute(vector1-vector2)**alfa)**(float(1)/alfa)
         
     '''
-    @pre: dos conjuntos de vectores del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
+    @pre: dos conjuntos de vectores del tipo np.array() 
     @note: (extension de pre) estos dos conjuntos seran del tipo np.array(). (hay otra forma de establecerlos mas eficiente?)
     @post: la distancia (float number) entre ambos conjuntos determinada por la distancia menor entre dos vectores de conjuntos diferentes.
     '''
@@ -221,7 +221,8 @@ Métodos para pruebas - En realidad no son métodos
 se trata de copiar el cuerpo del método al main y ejecutar
 pero es una manera cómoda de poner varias lineas sin
 molestar y sin hacer un comentario multilinea feo
-Grande Alberto!
+Grande Alberto! 
+:D :D
 '''
 def test1():
     vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
@@ -247,39 +248,26 @@ def test3():
 def test4():
     k = K_means(1,2,3,4,5,6)
     
-    #no he conseguido hacer uso de las instancias del fichero vectores_peque D: 
-    '''
-    matrix = k.initializeInstancesMatrix("vectors_peque.txt",k.getNumFileRows("vectors_peque.txt"),k.getNumFileColumns("vectors_peque.txt"))
-    print matrix[1][1:]
-    print matrix[1:][1:2]
-    conjuntoVectores1 = matrix[50:][50:]
-    conjuntoVectores2 = matrix[:50][:50]
-    '''
-    vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
-    vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
-    vec3=np.random.rand(5)
-    print vec3
-    print vec2
-    a = []
-    a.append(vec1)
-    a.append(vec2)
-    a.append(vec3)
-    conjuntoVectores1 = np.asarray(a)
-    print conjuntoVectores1
    
-    vec4=np.random.rand(5)
-    vec5=np.random.rand(5)
-    vec6=np.random.rand(5)
-    b = []
-    b.append(vec4)
-    b.append(vec5)
-    b.append(vec6)
-    conjuntoVectores2 = np.asarray(b)
+    instancesMatrix,clustersMatrix,membershipMatrix = k.initializeMatrixes("vectors_peque.txt")
+    print instancesMatrix[1][1:]
+    print instancesMatrix[1:][1:2]
+    
+    for i in range (0,5):
+      conjuntoVectores1 = instancesMatrix[i,:]  
+      conjuntoVectores2 = instancesMatrix[i+10,:]    
+    
+    
+    print 'Conjunto vectores 1: '
+    print conjuntoVectores1
+    
+    print 'Conjunto vectores 2: '
+    print conjuntoVectores2
 
     distanciaMin = k.singleLink(2,conjuntoVectores1,conjuntoVectores2)
     distanciaMax = k.completeLink(2,conjuntoVectores1,conjuntoVectores2)
     print "distanciaMin (singleLink): " + str(distanciaMin) #deberia dar una distancia bastante pequena porque no estoy tomando clusters reales y las instancias pueden estar muy mezcladas
-    print "distanciaMax (completeLink): " + str(distanciaMax) 
+    print "distanciaMax (completeLink): " + str(distanciaMax)
     #no soy capaz de interpretar si los resultados son correctos, podria hacer los calculos a mano pero da pereza.
     #entran dentro de lo razonable puesto que la min es menor que uno y la max es 2 (para la prueba que he hecho yo)
     #dado que los randoms generados estan entre 0 y 1 no me parece muy alocado que entre 2 grupos de 3 instancias las mas alejadas esten separadas por 2 unidades.
@@ -302,11 +290,9 @@ if __name__=="__main__":
         terminacion = sys.argv[6]
 
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
         
-        #kmeans.imprimirMatriz(instancesMatrix)
-        #print 'Imprimir Matriz Clusters'
-        #kmeans.imprimirMatriz(clustersMatrix)
+        test4()
         
         
         
