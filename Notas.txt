@@ -4,3 +4,14 @@ This is because you are making a full copy of the data each append,
 which will cost you quadratic time. 
 
 [extraido de stackoverflow (pregunta 31250129)]
+
+===============================================================================
+-createMembershipMatrix
+
+Duda eficiencia: La matriz de pertenencia debería ser de tipo int
+o boolean??
+membershipMatrix = np.ndarray(shape=(rows,columns),dtype=bool)
+(El cambio es trivial ya que el resto funciona igual)
+
+
+===============================================================================

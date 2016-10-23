@@ -4,8 +4,10 @@
 """
 @authors: Julen, Alberto, Till
 
-TODO: ASIGNAR CENTROIDE MÁS CERCANO MODIFICANDO LA MATRIZ DE PERTENENCIA
-TODO: DISTANCIAS INTERGRUPALES
+TODO: ??? SI HUBIERA UNA MANERA CHACHI DE HACER VARIABLES GLOBALES
+DE MANERA QUE NO TUVIERAMOS QUE ACCEDER A LOS PARAMS DE CONFIGURACION DEL 
+K MEANS MEDIANTE SYS.ARGV SERIA LA OSTIA
+
 TODO: K-MEANS JAJA
 """
 import sys 
@@ -18,7 +20,7 @@ class K_means:
    
             
     def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ):
-        print "trabajo por hacer D:"
+        print "KMeans inicializado - Trabajo por hacer D:"
         
     
 
@@ -92,6 +94,13 @@ class K_means:
     tantas filas como instancias. Se rellena con ceros.
     '''
     def createMembershipMatrix(self,rows,columns):
+        
+        '''
+        Duda eficiencia: La matriz de pertenencia debería ser de tipo int
+        o boolean??
+        membershipMatrix = np.ndarray(shape=(rows,columns),dtype=bool)
+        (El cambio es trivial ya que el resto funciona igual)
+        '''
         membershipMatrix = np.ndarray(shape=(rows,columns),dtype=int)
         membershipMatrix.fill(0)
         return membershipMatrix
@@ -204,16 +213,31 @@ class K_means:
                 if dist > distMax:
                     distMax = dist
         return distMax
-
-
-
+        
     
-    
-    
-    
-    
-
-
+    '''
+    @post: Asigna el centroide más cercano para cada instancia actualizando
+    la matriz de pertenencia
+    '''
+    def closestCentroid(self,instancesMatrix,clustersMatrix,membershipMatrix):
+        
+        
+        
+        instanceIndex = -1
+        for instance in instancesMatrix:
+            instanceIndex += 1
+            distanceToCentroid = float("inf")
+            cIndex = -1
+            for cluster in clustersMatrix:
+                cIndex += 1
+                aux = self.getDistance(int(sys.argv[3]),instance,cluster)
+                if(aux < distanceToCentroid):
+                    clusterIndex = cIndex
+                    distanceToCentroid = aux
+            
+            #Actualizar matriz pertenencia
+            membershipMatrix[instanceIndex][clusterIndex] = 1
+        
 
 
 '''
@@ -291,8 +315,14 @@ if __name__=="__main__":
 
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
         instancesMatrix,clustersMatrix,membershipMatrix = kmeans.initializeMatrixes("vectors_peque.txt")
+    
+        print 'Matriz pertenencia DESPUES: '
+        kmeans.imprimirMatriz(membershipMatrix)        
         
-        test4()
+        kmeans.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
+        
+        print 'Matriz pertenencia DESPUES: '
+        kmeans.imprimirMatriz(membershipMatrix)
         
         
         
