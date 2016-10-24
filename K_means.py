@@ -94,12 +94,17 @@ class K_means:
         
             
         #BUCLE TOCHO APROVECHAR A HACER TODO!!!
+        
             
         j = -1
         for line in instancesFile:
+            
             j = j + 1
+            if(j % 1000000 == 0):
+                    print 'Instancia numero: ',;print j;
             splittedLine = line.split()
             for i in range(0,len(splittedLine)):
+                    
                 if (i == 0):#Matriz palabras
                     word = splittedLine[i]
                     wordList[i,j] = str(word)                
@@ -532,7 +537,7 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews2000.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews-vectors-negative300.txt")
         
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
            
