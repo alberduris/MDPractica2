@@ -41,6 +41,8 @@ class K_means:
         #Inicializar matriz de instancias
         instancesMatrix = self.initializeInstancesMatrix(instancesFile,numFileRows,numFileColumns-1)
         
+        #Inicializar lista palabras
+        wordList = self.getWordList(instancesFileName)
                 
         #Inicializar matriz de clusters con ceros
         clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
@@ -49,7 +51,7 @@ class K_means:
         membershipMatrix = self.createMembershipMatrix(numFileRows,int(sys.argv[1]))
               
         
-        return instancesMatrix,clustersMatrix,membershipMatrix
+        return instancesMatrix,clustersMatrix,membershipMatrix,wordList
         
         
         
@@ -89,6 +91,14 @@ class K_means:
     '''
     def initializeMatrix(self,rows,columns):
         matrix = np.ndarray(shape=(rows,columns))
+        matrix.fill(0)
+        return matrix
+        
+    '''
+    @post: Inicializa una matriz de ceros con las dimensiones pasadas por params
+    '''
+    def initializeStringMatrix(self,rows,columns):
+        matrix = np.ndarray(shape=(rows,columns),dtype=(np.dtype("a25")))
         matrix.fill(0)
         return matrix
     
@@ -280,20 +290,70 @@ class K_means:
     '''
     @post: KMeans clustering
     '''
-    def clustering(self,instancesMatrix,clustersMatrix,membershipMatrix):
+    def clustering(self,instancesMatrix,clustersMatrix,membershipMatrix,wordList):
         
         #Asignamos las pertenencias iniciales        
         membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
         
-        print 'Matriz pertenencia ANTES de comenzar: '
-        self.imprimirMatriz(membershipMatrix)
+        
+        print 'Pertenencias iniciales: '
+        self.getClusterAssingments(membershipMatrix,wordList)
+        
         
         for i in range (0,int(sys.argv[6])):
             clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
             membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
             
             print 'Matriz pertenencia en la iteración ' + str(i+1)
-            self.imprimirMatriz(membershipMatrix)
+            self.getClusterAssingments(membershipMatrix,wordList)
+        
+            
+    
+    def getWordList(self,file_name):
+        instancesFile = open(file_name,'r')
+        wordList = self.initializeStringMatrix(1,self.getNumFileRows(file_name))
+        wordList.fill('')
+        
+        i = 0;
+        j = -1;
+        for line in instancesFile:
+            j = j + 1
+            splittedLine = line.split()
+            word = splittedLine[i]
+            wordList[i,j] = str(word)
+            
+        return wordList
+        
+    
+    def getWord(self,index,wordList):
+        
+        return wordList[0,index]
+        
+    def getClusterAssingments(self,membershipMatrix,wordList):
+        
+        rows = self.getNumMatrixRows(membershipMatrix)
+        cols = self.getNumMatrixColumns(membershipMatrix)
+        
+        listaClusters = []        
+        
+        for j in range (0, cols):
+            lista = []
+            lista.append('Cluster '+str(j+1))
+            for i in range (0,rows):
+                if(membershipMatrix[i,j] == 1):
+                    lista.append(self.getWord(i,wordList))
+            listaClusters.append(lista)
+               
+        f = open('cluster_assingments.txt','w')
+
+        for i in range (0,len(listaClusters)):
+                print listaClusters[i]
+                f.write(str(listaClusters[i])+'\n')
+        f.close()
+        
+            
+        
+        
        
             
 
@@ -383,9 +443,9 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix,membershipMatrix = kmeans.initializeMatrixes("vectors_muy_peque.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
         
-        kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix)
+        kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
            
         
         
