@@ -1,0 +1,5 @@
+['Cluster 1', 'to', 'is', 'that', 'are', 'it', 'or', 'be', 'this', 'which', 'not', 'have', 'but', 'other', 'their', 'they', 'some', 'all', 'more', 'most', 'can', 'such', 'many', 'there', 'these', 'only', 'may', 'than', 'would', 'no', 'however', 'if', 'use', 'often', 'so', 'will', 'while']
+['Cluster 2', 'the', 'of', 'and', 'in', 'a', 'as', 'for', 'with', 'from', 'an', 'also', 'has', 'its', 'been', 'used', 'into', 'see', 'between', 'known', 'called', 'system', 'state']
+['Cluster 3', 'one', 'zero', 'nine', 'two', 'eight', 's', 'five', 'three', 'four', 'six', 'seven', 'first', 'american', 'b', 'd', 'states', 'war', 'united', 'th', 'history']
+['Cluster 4', 'was', 'by', 'on', 'his', 'at', 'he', 'were', 'had', 'who', 'new', 'after', 'when', 'time', 'i', 'about', 'over', 'years', 'during', 'up']
+['Cluster 5', 'world', 'people']
