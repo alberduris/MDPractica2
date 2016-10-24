@@ -23,6 +23,9 @@ import Preprocesado as Preprocesado
 class K_means:
     
     def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ):
+        self.numClusters = numClusters
+        
+        
         print "KMeans inicializado - Trabajo por hacer D:"
         
     
@@ -35,24 +38,24 @@ class K_means:
     def initializeMatrixes(self,instancesFileName):
         print 'Abriendo fichero...'        
         instancesFile = open(instancesFileName,'r')
-        
         print 'Fichero abierto'
         
         
+        print 'Calculando tamaño fichero, matrices...'
         numFileRows = self.getNumFileRows(instancesFileName)
         print 'Numero de instancias: ',;print numFileRows
         numFileColumns = self.getNumFileColumns(instancesFileName)
         print 'Numero de columnas: ',;print numFileColumns       
 
         print 'Inicializando matriz de instancias...'
+        print 'Inicializando lista de palabras...'
         #Inicializar matriz de instancias
-        instancesMatrix = self.initializeInstancesMatrix(instancesFile,numFileRows,numFileColumns-1)
-        print 'Matriz de instancias inicializada'        
+        instancesMatrix,wordList = self.initializeInstancesMatrix(instancesFile,numFileRows,numFileColumns)
+        print 'Matriz de instancias inicializada'  
+        print 'Lista de palabras inicializada'   
         
         #Inicializar lista palabras
-        print 'Inicializando lista de palabras...'
-        wordList = self.getWordList(instancesFileName)
-        print 'Lista de palabras inicializada'   
+        #wordList = self.getWordList(instancesFileName)
         
         
         #Inicializar matriz de clusters con ceros
@@ -71,11 +74,18 @@ class K_means:
         
 
     '''
-    @post: Inicializa la matriz de las instancias
+    @post: Inicializa la matriz de las instancias y la wordList
     '''
     def initializeInstancesMatrix(self,instancesFile,numFileRows,numFileColumns):
-        instancesMatrix = self.initializeMatrix(numFileRows,numFileColumns)
-        #Saltar la primera linea        
+        #El numero de columnas del fichero es el numero de componentes del vector +1, por la palabra        
+        numVectorComponents = numFileColumns - 1
+        
+        instancesMatrix = self.initializeMatrix(numFileRows,numVectorComponents)
+        
+        wordList = self.initializeStringMatrix(1,numFileRows)
+        wordList.fill('')
+        
+        #Saltar la primera linea en caso de que sea cabecera    
         pos = instancesFile.tell()
         if (len(instancesFile.readline().split())==2):
             None
@@ -83,16 +93,21 @@ class K_means:
             instancesFile.seek(pos)
         
             
+        #BUCLE TOCHO APROVECHAR A HACER TODO!!!
             
         j = -1
         for line in instancesFile:
             j = j + 1
             splittedLine = line.split()
-            for i in range(1,len(splittedLine)):
-                column = splittedLine[i]
-                instancesMatrix[j,i-1] = float(column)
+            for i in range(0,len(splittedLine)):
+                if (i == 0):#Matriz palabras
+                    word = splittedLine[i]
+                    wordList[i,j] = str(word)                
+                else:#Matriz instancias
+                    column = splittedLine[i]
+                    instancesMatrix[j,i-1] = float(column)
         
-        return instancesMatrix
+        return instancesMatrix,wordList
         
     '''
     @post: Asigna los centroides iniciales asignando como centroides la 
@@ -184,13 +199,15 @@ class K_means:
     '''  
     def getNumFileRows(self,file_name):
         
+        
         f = open(file_name,'r')
         firstLine = f.readline()
         splittedFirstLine = firstLine.split()
-        if(len(splittedFirstLine)==2):
+        
+        if(len(splittedFirstLine)==2):#Si tiene cabecera
             return int(splittedFirstLine[0])
                 
-        
+        #Bucle tocho
         with open(file_name) as instancesFile:
             for i,line in enumerate(instancesFile):
                 pass
@@ -204,7 +221,8 @@ class K_means:
         f = open(file_name,'r')
         firstLine = f.readline()
         splittedFirstLine = firstLine.split()
-        if(len(splittedFirstLine)==2):
+        
+        if(len(splittedFirstLine)==2):#Si tiene cabecera
             return int(splittedFirstLine[1])+1        
         
         instancesFile = open(file_name,'r')        
@@ -313,6 +331,7 @@ class K_means:
                     
             newCluster = self.getMeanVector(cont,vectorSuma,numAtts)
             clustersMatrix[j,:]=newCluster
+            cont = 0
                     
         return clustersMatrix
             
@@ -336,7 +355,7 @@ class K_means:
         membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
         
         
-        print 'Pertenencias iniciales: '
+        #print 'Pertenencias iniciales: '
         self.getClusterAssingments(membershipMatrix,wordList,f)
         
         
@@ -344,31 +363,13 @@ class K_means:
             clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
             membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
             
-            print 'Matriz pertenencia en la iteración ' + str(i+1)
+            #print 'Matriz pertenencia en la iteración ' + str(i+1)
             f.write('Iteracion : '+str(i+1)+'\n')
             self.getClusterAssingments(membershipMatrix,wordList,f)
         
         f.close()
-    '''
-    @post: Devuelve una lista con todas las palabras del 
-    set original de datos
-    '''
-    def getWordList(self,file_name):
-        instancesFile = open(file_name,'r')
-        instancesFile.next()        
-        wordList = self.initializeStringMatrix(1,self.getNumFileRows(file_name))
-        print self.getNumFileRows(file_name)
-        wordList.fill('')
-        
-        i = 0;
-        j = -1;
-        for line in instancesFile:
-            j = j + 1
-            splittedLine = line.split()
-            word = splittedLine[i]
-            wordList[i,j] = str(word)
-            
-        return wordList
+        print 'KMeans - End'
+   
         
     '''
     @post: Devuelve la palabra de índice i contenida en la
@@ -399,7 +400,7 @@ class K_means:
                
 
         for i in range (0,len(listaClusters)):
-                print listaClusters[i]
+                #print listaClusters[i]
                 out_file.write(str(listaClusters[i])+'\n')
         
         
@@ -479,21 +480,42 @@ def test5():
 def extraerFragmentoFichero():
     
     f = open('GoogleNews-vectors-negative300.txt','r')
-    f_out = open('GoogleNews2000.txt','w')
+    f_out = open('GoogleNews10000.txt','w')
     
-    for i in range (0,2001):
+    for i in range (0,100000):
         line = f.readline()
         f_out.write(str(line))
         
     f.close()
     f_out.close()
                 
-    
+    '''
+    @post: Devuelve una lista con todas las palabras del 
+    set original de datos
+    @deprecated
+    '''
+    def getWordList(self,file_name):
+        instancesFile = open(file_name,'r')
+        instancesFile.next()        
+        wordList = self.initializeStringMatrix(1,self.getNumFileRows(file_name))
+        wordList.fill('')
+        
+        i = 0;
+        j = -1;
+        for line in instancesFile:
+            j = j + 1
+            splittedLine = line.split()
+            word = splittedLine[i]
+            wordList[i,j] = str(word)
+            
+        return wordList
 
 
 #para pruebas
 if __name__=="__main__":
     print 'K_means : main'
+    
+    #extraerFragmentoFichero()
     
     
     if (Preprocesado.preMain()):
