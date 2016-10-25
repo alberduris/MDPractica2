@@ -9,6 +9,8 @@
         
 
 """
+
+import time
 import sys 
 import numpy as np
 import numpy.random as random
@@ -36,6 +38,8 @@ class K_means:
     '''
     def initializeMatrixes(self,instancesFileName):
         
+        t0 = time.clock()
+        
         print 'COMENZANDO INICIALIZACIÓN'
         
         print 'Abriendo fichero...'        
@@ -58,12 +62,16 @@ class K_means:
         
         print 'Inicializando matriz de clusters...'
         print 'Matriz de clusters inicializada'
-        clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesFile,numFileRows,numFileColumns)
+        clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesMatrix,numFileRows,numFileColumns)
         print 'Inicializando matriz de pertenencia...'
         print 'Matriz de pertenencia inicializada'
 
         
+        tInicializacion = time.clock() - t0
         print 'INICIALIZACIÓN TERMINADA'
+        print 'Instancias procesadas: ',;print numFileRows
+        print 'Atributos por instancia: ',;print numFileColumns 
+        print 'Tiempo total: ',;print tInicializacion,;print ' segundos.'
         
         return instancesMatrix,clustersMatrix,membershipMatrix,wordList
         
@@ -95,8 +103,8 @@ class K_means:
         for line in instancesFile:
             
             j = j + 1
-            if(j % 1000000 == 0):
-                    print 'Instancia numero: ',;print j;
+            #if(j % 10000 == 0):
+            #        print 'Instancia numero: ',;print j;
             splittedLine = line.split()
             for i in range(0,len(splittedLine)):
                     
@@ -112,7 +120,10 @@ class K_means:
     '''
     @post: Inicializa la matriz de clusters y la matriz de pertenencia
     '''
-    def initializeClustersAndMembership(self,instancesMatrix,numFileColumns,numFileRows):
+    def initializeClustersAndMembership(self,instancesMatrix,numFileRows,numFileColumns):
+        
+        print numFileRows
+        print numFileColumns
         
         #Inicializar matriz de clusters con ceros
         clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
@@ -360,7 +371,10 @@ class K_means:
     @post: KMeans clustering
     '''
     def clustering(self,instancesMatrix,clustersMatrix,membershipMatrix,wordList):
-
+        
+        print 'COMENZANDO CLUSTERING'
+        t0 = time.clock()
+        
         f = open('cluster_assingments.txt','w')   
         
         #Asignamos las pertenencias iniciales
@@ -373,6 +387,7 @@ class K_means:
         
         
         for i in range (0,int(sys.argv[6])):
+            print 'Iteración ',;print i
             clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
             membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
             
@@ -381,6 +396,10 @@ class K_means:
             self.getClusterAssingments(membershipMatrix,wordList,f)
         
         f.close()
+        
+        tClustering = time.clock() - t0
+        print 'CLUSTERING FINALIZADO'
+        print 'Tiempo total: ',;print tClustering,;print ' segundos.'
         print 'KMeans - End'
    
         
