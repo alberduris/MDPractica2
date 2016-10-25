@@ -4,14 +4,8 @@
 """
 @authors: Julen, Alberto, Till
 
-TODO: ??? SI HUBIERA UNA MANERA CHACHI DE HACER VARIABLES GLOBALES
-DE MANERA QUE NO TUVIERAMOS QUE ACCEDER A LOS PARAMS DE CONFIGURACION DEL 
-K MEANS MEDIANTE SYS.ARGV SERIA LA OSTIA
 
 
-TODO: K-MEANS JAJA
-    TODO: SACAR ASIGNACIONES CLUSTERS --> DADA LA MATRIZ DE PERTENENCIAS FINAL DECIR: CLUSTER 1: 'THE','ONE'
-        TODO: SACAR CLASE DADO INDICE INSTANCIA --> INSTANCIA i=125 : 'THE'
         
 
 """
@@ -24,6 +18,11 @@ class K_means:
     
     def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ):
         self.numClusters = numClusters
+        self.opcIni = opcIni
+        self.distMink = distMink
+        self.distInt = distInt
+        self.crit = crit
+        self.cte = cte
         
         
         print "KMeans inicializado - Trabajo por hacer D:"
@@ -36,6 +35,9 @@ class K_means:
         -La matriz de clusters que contiene los centroides (vectores de los centroides)
     '''
     def initializeMatrixes(self,instancesFileName):
+        
+        print 'COMENZANDO INICIALIZACIÓN'
+        
         print 'Abriendo fichero...'        
         instancesFile = open(instancesFileName,'r')
         print 'Fichero abierto'
@@ -52,21 +54,16 @@ class K_means:
         #Inicializar matriz de instancias
         instancesMatrix,wordList = self.initializeInstancesMatrix(instancesFile,numFileRows,numFileColumns)
         print 'Matriz de instancias inicializada'  
-        print 'Lista de palabras inicializada'   
+        print 'Lista de palabras inicializada'
         
-        #Inicializar lista palabras
-        #wordList = self.getWordList(instancesFileName)
-        
-        
-        #Inicializar matriz de clusters con ceros
         print 'Inicializando matriz de clusters...'
-        clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
         print 'Matriz de clusters inicializada'
-        
-        #Crear matriz de pertenencia
+        clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesFile,numFileRows,numFileColumns)
         print 'Inicializando matriz de pertenencia...'
-        membershipMatrix = self.createMembershipMatrix(numFileRows,int(sys.argv[1]))
-        print 'Matriz de pertenencia inicializada'    
+        print 'Matriz de pertenencia inicializada'
+
+        
+        print 'INICIALIZACIÓN TERMINADA'
         
         return instancesMatrix,clustersMatrix,membershipMatrix,wordList
         
@@ -94,8 +91,6 @@ class K_means:
         
             
         #BUCLE TOCHO APROVECHAR A HACER TODO!!!
-        
-            
         j = -1
         for line in instancesFile:
             
@@ -113,6 +108,19 @@ class K_means:
                     instancesMatrix[j,i-1] = float(column)
         
         return instancesMatrix,wordList
+        
+    '''
+    @post: Inicializa la matriz de clusters y la matriz de pertenencia
+    '''
+    def initializeClustersAndMembership(self,instancesMatrix,numFileColumns,numFileRows):
+        
+        #Inicializar matriz de clusters con ceros
+        clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
+        
+        #Crear matriz de pertenencia
+        membershipMatrix = self.createMembershipMatrix(numFileRows,int(sys.argv[1]))
+        
+        return clustersMatrix,membershipMatrix
         
     '''
     @post: Asigna los centroides iniciales asignando como centroides la 
@@ -537,7 +545,7 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews-vectors-negative300.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
         
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
            
