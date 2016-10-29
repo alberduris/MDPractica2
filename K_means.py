@@ -9,7 +9,7 @@
         
 
 """
-
+import gc
 import time
 import sys 
 import numpy as np
@@ -58,20 +58,22 @@ class K_means:
         #Inicializar matriz de instancias
         instancesMatrix,wordList = self.initializeInstancesMatrix(instancesFile,numFileRows,numFileColumns)
         print 'Matriz de instancias inicializada'  
-        print 'Lista de palabras inicializada'
+        print 'Lista de palabras inicializada\n\n'
         
         print 'Inicializando matriz de clusters...'
         print 'Matriz de clusters inicializada'
         clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesMatrix,numFileRows,numFileColumns)
         print 'Inicializando matriz de pertenencia...'
-        print 'Matriz de pertenencia inicializada'
+        print 'Matriz de pertenencia inicializada\n\n'
 
         
         tInicializacion = time.clock() - t0
         print 'INICIALIZACIÓN TERMINADA'
         print 'Instancias procesadas: ',;print numFileRows
         print 'Atributos por instancia: ',;print numFileColumns 
-        print 'Tiempo total: ',;print tInicializacion,;print ' segundos.'
+        print 'Elementos procesados: ',;print numFileColumns*numFileRows 
+        print 'Tiempo total inicialización: ',;print tInicializacion,;print ' segundos.'
+        print 'Tiempo/elemento: ',;print (tInicializacion/(numFileColumns*numFileRows)),;print '\n\n'
         
         return instancesMatrix,clustersMatrix,membershipMatrix,wordList
         
@@ -122,14 +124,11 @@ class K_means:
     '''
     def initializeClustersAndMembership(self,instancesMatrix,numFileRows,numFileColumns):
         
-        print numFileRows
-        print numFileColumns
-        
         #Inicializar matriz de clusters con ceros
         clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
         
         #Crear matriz de pertenencia
-        membershipMatrix = self.createMembershipMatrix(numFileRows,int(sys.argv[1]))
+        membershipMatrix = self.createMembershipMatrix(numFileRows,int(self.numClusters))
         
         return clustersMatrix,membershipMatrix
         
@@ -138,9 +137,9 @@ class K_means:
     posición de k instancias al azar
     '''
     def setRandomCentroids(self,numFileColumns,instancesMatrix):
-        clustersMatrix = self.initializeMatrix(int(sys.argv[1]),numFileColumns)
+        clustersMatrix = self.initializeMatrix(int(self.numClusters),numFileColumns)
         
-        for i in range (0,int(sys.argv[1])):
+        for i in range (0,int(self.numClusters)):
         
             instanceNum = random.randint(0,self.getNumMatrixRows(instancesMatrix))
             clustersMatrix[i,:] = self.getVector(instanceNum,instancesMatrix)
@@ -322,7 +321,7 @@ class K_means:
             cIndex = -1
             for cluster in clustersMatrix:
                 cIndex += 1
-                aux = self.getDistance(int(sys.argv[3]),instance,cluster)
+                aux = self.getDistance(int(self.distMink),instance,cluster)
                 if(aux < distanceToCentroid):
                     clusterIndex = cIndex
                     distanceToCentroid = aux
@@ -373,6 +372,7 @@ class K_means:
     def clustering(self,instancesMatrix,clustersMatrix,membershipMatrix,wordList):
         
         print 'COMENZANDO CLUSTERING'
+        
         t0 = time.clock()
         
         f = open('cluster_assingments.txt','w')   
@@ -381,28 +381,84 @@ class K_means:
         f.write('Pertenencias iniciales :\n')        
         membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
         
-        
         #print 'Pertenencias iniciales: '
-        self.getClusterAssingments(membershipMatrix,wordList,f)
+        self.printClusterAssingments(membershipMatrix,wordList,f)
         
-        
-        for i in range (0,int(sys.argv[6])):
-            print 'Iteración ',;print i
-            clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
-            membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
+        if(self.crit == 'n'):#Num.Iteraciones fijo
+            for i in range (0,int(self.cte)):
+                print 'Iteración ',;print i
+                clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
+                membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
+                
+                #print 'Matriz pertenencia en la iteración ' + str(i+1)
+                f.write('Iteracion : '+str(i+1)+'\n')
+                self.printClusterAssingments(membershipMatrix,wordList,f)
             
-            #print 'Matriz pertenencia en la iteración ' + str(i+1)
-            f.write('Iteracion : '+str(i+1)+'\n')
-            self.getClusterAssingments(membershipMatrix,wordList,f)
-        
-        f.close()
+            f.close()
+        else:#Umbral
+            cont = -1
+            variation = float('inf')
+            clustersMatrixBefore = clustersMatrix.copy()
+            while(variation > int(self.cte)):
+                cont += 1
+                print 'Iteración ',;print cont
+                clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
+                
+
+                membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
+                
+                #print 'Matriz pertenencia en la iteración ' + str(i+1)
+                f.write('Iteracion : '+str(cont+1)+'\n')
+                self.printClusterAssingments(membershipMatrix,wordList,f)
+
+                if(cont > 0):#Calcular la variacion despues de la 1era it.
+                    variation = self.getVariation(clustersMatrixBefore,clustersMatrix)
+                clustersMatrixBefore = clustersMatrix.copy()
+                
+                
+            
+            print 'Bucle finalizado'
+            print 'Variación: ',;print variation
+                 
+                
+            
         
         tClustering = time.clock() - t0
         print 'CLUSTERING FINALIZADO'
-        print 'Tiempo total: ',;print tClustering,;print ' segundos.'
+        print 'Tiempo total clustering: ',;print tClustering,;print ' segundos.'
         print 'KMeans - End'
-   
         
+
+    '''
+    @post: Devuelve la variación de la posición, en valor absoluto, entre los
+    centroides actuales y los de la iteración anterior.
+    @params: La matriz de clusters actual y la anterior
+    '''
+    def getVariation(self,clustersMatrixBefore,clustersMatrix):
+        vari = 0
+        
+        for i in range (0,int(self.numClusters)):
+            #vari = vari + abs(self.getDistance(int(self.distMink),clustersMatrix[i,:],clustersMatrixBefore[i,:]))
+            vari = vari + abs(self.getDistance(int(self.distMink),self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore)))            
+            
+        return vari
+    
+    '''
+    @post: Calcula la matriz de distancias, eficientemente (diagonal superior),
+    siendo cada distancia la distancia entre los centroides de los clusters
+    @note: Creo que no sirve para nada, lo he hecho por error
+    '''
+    def getCentroidsDistance(self,clustersMatrix):
+
+        distancesMatrix = self.initializeMatrix(int(self.numClusters),int(self.numClusters))
+        
+        for i in range (0,int(self.numClusters)):
+            for j in range(i+1,int(self.numClusters)):
+                distancesMatrix[i][j] = self.getDistance(int(self.distMink),
+                                                        self.getVector(i,clustersMatrix),
+                                                        self.getVector(j,clustersMatrix))
+        
+        return distancesMatrix
     '''
     @post: Devuelve la palabra de índice i contenida en la
     lista wordList
@@ -415,7 +471,7 @@ class K_means:
     la lista de palabras wordList, imprime por pantalla y
     en fichero las pertenencias de los clusters
     '''
-    def getClusterAssingments(self,membershipMatrix,wordList,out_file):
+    def printClusterAssingments(self,membershipMatrix,wordList,out_file):
         
         rows = self.getNumMatrixRows(membershipMatrix)
         cols = self.getNumMatrixColumns(membershipMatrix)

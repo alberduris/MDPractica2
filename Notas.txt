@@ -16,8 +16,7 @@ membershipMatrix = np.ndarray(shape=(rows,columns),dtype=bool)
 
 ===============================================================================
 
-TODO: SACAR ASIGNACIONES CLUSTERS --> DADA LA MATRIZ DE PERTENENCIAS FINAL DECIR: CLUSTER 1: 'THE','ONE'
-        TODO: SACAR CLASE DADO INDICE INSTANCIA --> INSTANCIA i=125 : 'THE'
+TODO: MEJORAR DISEÑO DE ELEGIR CRITERIOR TERMINACIÓN
 
 ===============================================================================
  
