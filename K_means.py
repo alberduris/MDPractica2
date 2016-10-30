@@ -147,6 +147,40 @@ class K_means:
         return clustersMatrix
         
     '''
+    @pre: k nunca es mayor que 300. ?
+    @post: Genera 2k centroides y devuelve los k más separados entre sí. 
+    @note: Muchas dudas sobre la eficiencia de este algoritmo.
+
+    '''
+    def set2KCentroids(self,numFileColumns,instancesMatrix):
+        clustMatrix = self.initializeMatrix(int(self.numClusters)*2,numFileColumns)
+        
+        for i in range (0,int(self.numClusters)*2):
+        
+            instanceNum = random.randint(0,self.getNumMatrixRows(instancesMatrix))
+            clustMatrix[i,:] = self.getVector(instanceNum,instancesMatrix)
+       
+        centroidsDistances = np.ndarray(shape=(int(self.numClusters)*2))
+        for i in range (0,int(self.numClusters)*2):
+            for j in range (0,int(self.numClusters)*2):
+                if j!=i:
+                    centroidsDistances[i] += self.getDistance(self.distMink,self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
+        # self.getVector(i,clustersMatrix) == clustersMatrix[i] == clustersMatrix[i,:]
+        print str(clustMatrix.shape[0]) + "un valor"
+        while clustMatrix.shape[0]>int(self.numClusters):
+            ind = centroidsDistances.tolist().index(min(centroidsDistances))
+            instanceToEliminate = clustMatrix[ind,:]
+            clustMatrix = np.delete(clustMatrix,ind)
+            centroidsDistances = np.delete(centroidsDistances,ind)
+            for i in range(0,clustMatrix.shape[0]): #actualizamos las distancias entre instancias
+                print str(clustMatrix.shape[0]) + "valor diferente"
+                print clustMatrix.shape[0]
+                print instanceToEliminate.shape[0]
+                print self.getVector(i,clustMatrix).shape[0] #el indice i es mayor que el tamano del vector.
+                centroidsDistances[i] -= self.getDistance(self.distMink,self.getVector(i,clustMatrix),instanceToEliminate)
+                
+        return clustMatrix
+    '''
     @post: Inicializa una matriz de ceros con las dimensiones pasadas por params
     '''
     def initializeMatrix(self,rows,columns):
@@ -565,6 +599,15 @@ def test5():
     print 'Matriz pertenencia DESPUES: '
     kmeans.imprimirMatriz(membershipMatrix)
     
+def test6():
+   
+    k = K_means(5,'c',2,'s','a',300)
+    instancesMatrix,clustersMatrix,membershipMatrix,wordList = k.initializeMatrixes("vectors_peque.txt")
+    centroides = k.set2KCentroids(k.getNumMatrixColumns(instancesMatrix),instancesMatrix)
+    for centroide in centroides:
+        print centroide[2:4]
+       
+
 def extraerFragmentoFichero():
     
     f = open('GoogleNews-vectors-negative300.txt','r')
@@ -623,8 +666,7 @@ if __name__=="__main__":
         instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
         
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
-           
-        
+
         
         
         
@@ -637,4 +679,4 @@ if __name__=="__main__":
         esto lo quitaremos:
         '''
         print 'pruebas:'
-        test4()
+        test6()
