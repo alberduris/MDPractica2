@@ -9,7 +9,7 @@
         
 
 """
-import gc
+import matplotlib.pyplot as plt
 import time
 import sys 
 import numpy as np
@@ -61,9 +61,9 @@ class K_means:
         print 'Lista de palabras inicializada\n\n'
         
         print 'Inicializando matriz de clusters...'
-        print 'Matriz de clusters inicializada'
-        clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesMatrix,numFileRows,numFileColumns)
         print 'Inicializando matriz de pertenencia...'
+        clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesMatrix,numFileRows,numFileColumns)
+        print 'Matriz de clusters inicializada'
         print 'Matriz de pertenencia inicializada\n\n'
 
         
@@ -124,9 +124,18 @@ class K_means:
     '''
     def initializeClustersAndMembership(self,instancesMatrix,numFileRows,numFileColumns):
         
-        #Inicializar matriz de clusters con ceros
-        clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)        
-        
+        if(self.opcIni == 'a'):
+            #Inicializar matriz de clusters con ceros
+            clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)
+            self.plotInstancesAndCentroids(instancesMatrix,clustersMatrix)
+            
+        elif(self.opcIni == 'b'):
+            raise Exception('Not implemented yet')
+            
+        elif(self.opcIni == 'c'):
+            clustersMatrix = self.plusPlusInit(numFileColumns-1,instancesMatrix)
+            self.plotInstancesAndCentroids(instancesMatrix,clustersMatrix)
+            
         #Crear matriz de pertenencia
         membershipMatrix = self.createMembershipMatrix(numFileRows,int(self.numClusters))
         
@@ -180,6 +189,36 @@ class K_means:
                 centroidsDistances[i] -= self.getDistance(self.distMink,self.getVector(i,clustMatrix),instanceToEliminate)
                 
         return clustMatrix
+        
+    '''
+    @post: Realiza la inicialización KMeans++
+    @doc: http://ilpubs.stanford.edu:8090/778/1/2006-13.pdf
+    '''    
+    def plusPlusInit(self,numFileColumns,instancesMatrix):
+        #Inicializar matriz de clusters        
+        clustersMatrix = self.initializeMatrix(int(self.numClusters),numFileColumns)
+        
+        #Escoger un centroide inicial c1 al azar
+        instanceNum = random.randint(0,self.getNumMatrixRows(instancesMatrix))
+        c1 = self.getVector(instanceNum,instancesMatrix)
+
+        #Asignar como primer centroide c1
+        clustersMatrix[0,:] = c1        
+        
+        for i in range (1,int(self.numClusters)):#Hasta tener k centroides 
+            
+            
+            D2 = np.array([min([np.linalg.norm(instance-centroid)**2 for centroid in clustersMatrix]) for instance in instancesMatrix])
+            prob = D2/D2.sum()
+            cumprob = prob.cumsum()
+            r = random.random()
+            ind = np.where(cumprob >= r)[0][0]
+            next_centroid = self.getVector(ind,instancesMatrix)
+            clustersMatrix[i,:] = next_centroid
+        
+        return clustersMatrix
+            
+    
     '''
     @post: Inicializa una matriz de ceros con las dimensiones pasadas por params
     '''
@@ -524,6 +563,22 @@ class K_means:
         for i in range (0,len(listaClusters)):
                 #print listaClusters[i]
                 out_file.write(str(listaClusters[i])+'\n')
+                
+    def plotInstancesAndCentroids(self,instancesMatrix,clustersMatrix):
+        
+        #Define los limites en x
+        plt.xlim(instancesMatrix.min(),instancesMatrix.max())
+        #Define los limites en y
+        plt.ylim(instancesMatrix.min(),instancesMatrix.max())
+
+        #Dibuja las instancias        
+        plt.plot(zip(*instancesMatrix)[0], zip(*instancesMatrix)[1], '.', alpha=0.5)
+        
+        #Dibuja los centroides        
+        plt.plot(zip(*clustersMatrix)[0], zip(*clustersMatrix)[1], 'ro')
+        
+        plt.savefig('plots/kpp_init_%s_N%s_K%s.png' % (str(self.opcIni),str(self.getNumMatrixRows(instancesMatrix)),str(self.numClusters)), \
+                    bbox_inches='tight', dpi=200)
         
         
             
@@ -663,9 +718,10 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
         
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
+        
 
         
         
