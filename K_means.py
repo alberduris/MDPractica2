@@ -544,6 +544,7 @@ class K_means:
 
                 if(cont > 0):#Calcular la variacion despues de la 1era it.
                     variation = self.getVariation(clustersMatrixBefore,clustersMatrix)
+                print 'Variación: ',;print variation
                 clustersMatrixBefore = clustersMatrix.copy()
                 
                 
@@ -642,7 +643,7 @@ class K_means:
     def printPlotClusterAssingments(self,membershipMatrix,wordList,out_file,instancesMatrix,clustersMatrix,it):
 
         fig = plt.figure()
-        fig.canvas.set_window_title('KMeans_K=%s_N=%s_Init=%s_Dist=%s_IG=%s_It=%s.png' % 
+        fig.canvas.set_window_title('KMeans_K=%s_N=%s_Init=%s_Dist=%s_IG=%s_It=%s' % 
         (str(self.numClusters),str(self.getNumMatrixRows(instancesMatrix)),
          str(self.opcIni),str(self.distMink),str(self.distInt),str(it)))
                     
@@ -715,12 +716,78 @@ class K_means:
    
     
         
+    
             
+    '''
+    @post: Devuelve una matriz tal que:
+    Filas = k 
+    Columnas = 2 --> Col1: Distancia acumulada ; Col2 = NumInstancias en ese cluster
+    '''
+    def getNeighboursAndForeignersDistance(self,index,instancesMatrix,membershipMatrix):
         
+        distancesInstances = self.initializeMatrix(int(self.numClusters),2)
+        #Col1 = DistanciaTotal : #Col2 = NumInstancias
         
-       
+        for i in range(0,self.getNumMatrixRows(membershipMatrix)):#Por cada fila
+            for j in range(0,int(self.numClusters)):#Por cada columna
+                
+                if(membershipMatrix[i][j] == 1):
+                    
+                    if(self.distMink == '0'):
+                        distancesInstances[j][0] += self.getCosineDistance(self.getVector(index,instancesMatrix),
+                                                            self.getVector(i,instancesMatrix))
+                        distancesInstances[j][1] += 1
+                    else:
+                        distancesInstances[j][0] += self.getDistance(int(self.distMink),self.getVector(index,instancesMatrix),
+                                                            self.getVector(i,instancesMatrix))
+                        distancesInstances[j][1] += 1
+                
+        
+        return distancesInstances
+    
+    '''
+    @post: Devuelve a(xi) y b(xi) respecto a la matriz de distancias entre instancias 
+    que se le pase por parámetro.
+    @note: La matriz pasada por param será la salida del método getNeighboursAndForeignersDistances 
+    en el que se especificara para qué xi (instancia) se está calculando el a y b
+    '''
+    def getABSilhouette(self,distancesInstances):
+        
+        distExtranjeros = float('inf')
+        aux = 0
+        clusterPropio = np.amin(distancesInstances,axis=0)
+        clustersExtranjeros = distancesInstances-clusterPropio
+        
+        for i in range(0,self.getNumMatrixRows(clustersExtranjeros)):
+            aux = clustersExtranjeros[i][0]/clustersExtranjeros[i][1]
+            if(aux < distExtranjeros and aux != 0):
+                distExtranjeros = aux
             
+            
+            
+        return clusterPropio[0]/clusterPropio[1],distExtranjeros
+    
+    '''
+    @post: Calcula índice Silhouette para una instancia
+    '''
+    def getSilhouette(self,a,b):
+        return b-a/max(a,b)
 
+    '''
+    @post: Calcula índice Silhouette para todas las instancias
+    '''
+    def silhouetteMain(self,instancesMatrix,membershipMatrix):
+        silhouetteX = 0        
+        for i in range(0,self.getNumMatrixRows(membershipMatrix)):
+            print 'Silhouette instancia ',;print i
+            foreign = kmeans.getNeighboursAndForeignersDistance(i,instancesMatrix,membershipMatrix)
+            a,b = kmeans.getABSilhouette(foreign)
+            sil = kmeans.getSilhouette(a,b)            
+            silhouetteX =+ sil
+            #print sil
+            
+        print 'Índice Silhouette conjunto: ',;print silhouetteX/self.getNumMatrixRows(membershipMatrix)
+            
 
 '''
 Métodos para pruebas - En realidad no son métodos
@@ -856,10 +923,10 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
+        kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
         
-
         
         
         
