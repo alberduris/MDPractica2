@@ -35,10 +35,10 @@ def comprobarEntero(numClusters):
 def comprobarFlotante(distanciaMinkowski):
     try:
         disM = float(distanciaMinkowski)
-        if(disM <= 0):
-            print "El parámetro p de la distancia Minkowski debe ser p > 0"
+        if(disM < 0):
+            print "El parámetro p de la distancia Minkowski debe ser p > 0 || p = 0 para distancia Coseno"
             return False
-        return disM
+        return True
     except ValueError:
         print "No has introducido un numero como distancia de minkowski"
         return False #la distancia de minkowski nunca va a ser negativa.
@@ -123,7 +123,7 @@ def comprobarPrincipal(k,ini,minkwsk,inter,crit,terminacion):
                 
 def preMain():
     print '***K-means***'
-    if len(sys.argv)!=7:
+    if len(sys.argv)<7:
         print "Numero de argumentos: " + str(len(sys.argv))
         print "Error en el numero de argumentos. Deben ser 7."
         print "(arg[0] -> self)"

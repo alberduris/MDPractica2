@@ -16,7 +16,7 @@ membershipMatrix = np.ndarray(shape=(rows,columns),dtype=bool)
 
 ===============================================================================
 
-TODO: MEJORAR DISEÑO DE ELEGIR CRITERIOR TERMINACIÓN
+
 
 ===============================================================================
  
