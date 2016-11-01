@@ -9,6 +9,10 @@
         
 
 """
+
+from sklearn import decomposition
+import matplotlib.cm as cm
+from scipy import spatial
 import matplotlib.pyplot as plt
 import time
 import sys 
@@ -18,13 +22,14 @@ import Preprocesado as Preprocesado
 
 class K_means:
     
-    def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte ):
+    def __init__(self, numClusters, opcIni, distMink, distInt, crit, cte, pca):
         self.numClusters = numClusters
         self.opcIni = opcIni
         self.distMink = distMink
         self.distInt = distInt
         self.crit = crit
         self.cte = cte
+        self.pca = pca
         
         
         print "KMeans inicializado - Trabajo por hacer D:"
@@ -62,7 +67,7 @@ class K_means:
         
         print 'Inicializando matriz de clusters...'
         print 'Inicializando matriz de pertenencia...'
-        clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesMatrix,numFileRows,numFileColumns)
+        clustersMatrix,membershipMatrix = self.initializeClustersAndMembership(instancesMatrix)
         print 'Matriz de clusters inicializada'
         print 'Matriz de pertenencia inicializada\n\n'
 
@@ -75,7 +80,9 @@ class K_means:
         print 'Tiempo total inicialización: ',;print tInicializacion,;print ' segundos.'
         print 'Tiempo/elemento: ',;print (tInicializacion/(numFileColumns*numFileRows)),;print '\n\n'
         
+    
         return instancesMatrix,clustersMatrix,membershipMatrix,wordList
+        
         
         
         
@@ -117,27 +124,30 @@ class K_means:
                     column = splittedLine[i]
                     instancesMatrix[j,i-1] = float(column)
         
+        if(self.pca == 'pca'):        
+            instancesMatrix = self.pcaInstances(instancesMatrix)
+        
         return instancesMatrix,wordList
         
     '''
     @post: Inicializa la matriz de clusters y la matriz de pertenencia
     '''
-    def initializeClustersAndMembership(self,instancesMatrix,numFileRows,numFileColumns):
+    def initializeClustersAndMembership(self,instancesMatrix):
         
         if(self.opcIni == 'a'):
             #Inicializar matriz de clusters con ceros
-            clustersMatrix = self.setRandomCentroids(numFileColumns-1,instancesMatrix)
-            self.plotInstancesAndCentroids(instancesMatrix,clustersMatrix)
+            clustersMatrix = self.setRandomCentroids(self.getNumMatrixColumns(instancesMatrix),instancesMatrix)
+            
             
         elif(self.opcIni == 'b'):
             raise Exception('Not implemented yet')
             
         elif(self.opcIni == 'c'):
-            clustersMatrix = self.plusPlusInit(numFileColumns-1,instancesMatrix)
-            self.plotInstancesAndCentroids(instancesMatrix,clustersMatrix)
+            clustersMatrix = self.plusPlusInit(self.getNumMatrixColumns(instancesMatrix),instancesMatrix)
+            
             
         #Crear matriz de pertenencia
-        membershipMatrix = self.createMembershipMatrix(numFileRows,int(self.numClusters))
+        membershipMatrix = self.createMembershipMatrix(self.getNumMatrixRows(instancesMatrix),int(self.numClusters))
         
         return clustersMatrix,membershipMatrix
         
@@ -147,12 +157,12 @@ class K_means:
     '''
     def setRandomCentroids(self,numFileColumns,instancesMatrix):
         clustersMatrix = self.initializeMatrix(int(self.numClusters),numFileColumns)
-        
         for i in range (0,int(self.numClusters)):
         
             instanceNum = random.randint(0,self.getNumMatrixRows(instancesMatrix))
             clustersMatrix[i,:] = self.getVector(instanceNum,instancesMatrix)
             
+        
         return clustersMatrix
         
     '''
@@ -353,17 +363,42 @@ class K_means:
         return np.sum(np.absolute(vector1-vector2)**alfa)**(float(1)/alfa)
         
     '''
+    @post: Similaridad coseno
+    @note: Usando librería Scipy
+    '''
+    def getCosineSimilarity(self,vector1,vector2):
+        return 1 - spatial.distance.cosine(vector1,vector2)
+
+    '''
+    @post: Distancia coseno
+    @note: Usando librería Scipy
+    '''
+    def getCosineDistance(self,vector1,vector2):
+        return spatial.distance.cosine(vector1,vector2)
+        
+    '''
     @pre: dos conjuntos de vectores del tipo np.array() 
     @note: (extension de pre) estos dos conjuntos seran del tipo np.array(). (hay otra forma de establecerlos mas eficiente?)
     @post: la distancia (float number) entre ambos conjuntos determinada por la distancia menor entre dos vectores de conjuntos diferentes.
     '''
     def singleLink(self,alfa,conjunto1,conjunto2):
-        distMin = self.getDistance(alfa,conjunto1[0],conjunto2[0])
-        for instance1 in conjunto1:
-            for instance2 in conjunto2:
-                dist = self.getDistance(alfa,instance1,instance2)
-                if dist < distMin:
-                    distMin = dist
+
+        
+        if(int(self.distMink) == 0):
+            distMin = self.getCosineDistance(conjunto1[0],conjunto2[0])
+            for instance1 in conjunto1:
+                for instance2 in conjunto2:
+                    dist = self.getCosineDistance(instance1,instance2)
+                    if dist < distMin:
+                        distMin = dist
+            
+        else:    
+            distMin = self.getDistance(alfa,conjunto1[0],conjunto2[0])
+            for instance1 in conjunto1:
+                for instance2 in conjunto2:
+                    dist = self.getDistance(alfa,instance1,instance2)
+                    if dist < distMin:
+                        distMin = dist
         return distMin
     '''
     @pre: dos conjuntos de vectores del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
@@ -372,11 +407,19 @@ class K_means:
     '''
     def completeLink(self,alfa,conjunto1,conjunto2):
         distMax = 0
-        for instance1 in conjunto1:
-            for instance2 in conjunto2:
-                dist = self.getDistance(alfa,instance1,instance2)
-                if dist > distMax:
-                    distMax = dist
+        
+        if (self.distMink == '0'):
+            for instance1 in conjunto1:
+                for instance2 in conjunto2:
+                    dist = self.getCosineDistance(instance1,instance2)
+                    if dist > distMax:
+                        distMax = dist
+        else:    
+            for instance1 in conjunto1:
+                for instance2 in conjunto2:
+                    dist = self.getDistance(alfa,instance1,instance2)
+                    if dist > distMax:
+                        distMax = dist
         return distMax
         
     
@@ -394,7 +437,13 @@ class K_means:
             cIndex = -1
             for cluster in clustersMatrix:
                 cIndex += 1
-                aux = self.getDistance(int(self.distMink),instance,cluster)
+                
+                if(self.distMink == '0'):
+                    aux = self.getCosineDistance(instance,cluster)
+                else:
+                    aux = self.getDistance(float(self.distMink),instance,cluster)
+                
+                
                 if(aux < distanceToCentroid):
                     clusterIndex = cIndex
                     distanceToCentroid = aux
@@ -444,6 +493,7 @@ class K_means:
     '''
     def clustering(self,instancesMatrix,clustersMatrix,membershipMatrix,wordList):
         
+        
         print 'COMENZANDO CLUSTERING'
         
         t0 = time.clock()
@@ -454,8 +504,11 @@ class K_means:
         f.write('Pertenencias iniciales :\n')        
         membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
         
-        #print 'Pertenencias iniciales: '
-        self.printClusterAssingments(membershipMatrix,wordList,f)
+        #Imprimir/Graficar Pertenencias iniciales
+        if(self.pca == 'pca'):
+            self.printPlotClusterAssingments(membershipMatrix,wordList,f,instancesMatrix,clustersMatrix,0)
+        else:
+            self.printClusterAssingments(membershipMatrix,wordList,f)
         
         if(self.crit == 'n'):#Num.Iteraciones fijo
             for i in range (0,int(self.cte)):
@@ -463,9 +516,11 @@ class K_means:
                 clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
                 membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)            
                 
-                #print 'Matriz pertenencia en la iteración ' + str(i+1)
                 f.write('Iteracion : '+str(i+1)+'\n')
-                self.printClusterAssingments(membershipMatrix,wordList,f)
+                if(self.pca == 'pca'):
+                    self.printPlotClusterAssingments(membershipMatrix,wordList,f,instancesMatrix,clustersMatrix,i+1)
+                else:
+                    self.printClusterAssingments(membershipMatrix,wordList,f)
             
             f.close()
         else:#Umbral
@@ -482,7 +537,10 @@ class K_means:
                 
                 #print 'Matriz pertenencia en la iteración ' + str(i+1)
                 f.write('Iteracion : '+str(cont+1)+'\n')
-                self.printClusterAssingments(membershipMatrix,wordList,f)
+                if(self.pca == 'pca'):
+                    self.printPlotClusterAssingments(membershipMatrix,wordList,f,instancesMatrix,clustersMatrix,cont+1)
+                else:
+                    self.printClusterAssingments(membershipMatrix,wordList,f)
 
                 if(cont > 0):#Calcular la variacion despues de la 1era it.
                     variation = self.getVariation(clustersMatrixBefore,clustersMatrix)
@@ -510,9 +568,12 @@ class K_means:
     def getVariation(self,clustersMatrixBefore,clustersMatrix):
         vari = 0
         
-        for i in range (0,int(self.numClusters)):
-            #vari = vari + abs(self.getDistance(int(self.distMink),clustersMatrix[i,:],clustersMatrixBefore[i,:]))
-            vari = vari + abs(self.getDistance(int(self.distMink),self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore)))            
+        if(self.distMink == '0'):
+            for i in range (0,int(self.numClusters)):
+                vari = vari + abs(self.getCosineDistance(self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore))) 
+        else:
+            for i in range (0,int(self.numClusters)):
+                vari = vari + abs(self.getDistance(int(self.distMink),self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore)))            
             
         return vari
     
@@ -525,11 +586,17 @@ class K_means:
 
         distancesMatrix = self.initializeMatrix(int(self.numClusters),int(self.numClusters))
         
-        for i in range (0,int(self.numClusters)):
-            for j in range(i+1,int(self.numClusters)):
-                distancesMatrix[i][j] = self.getDistance(int(self.distMink),
-                                                        self.getVector(i,clustersMatrix),
-                                                        self.getVector(j,clustersMatrix))
+        if(self.distMink == '0'):
+            for i in range (0,int(self.numClusters)):
+                for j in range(i+1,int(self.numClusters)):
+                    distancesMatrix[i][j] = self.getCosineDistance(self.getVector(i,clustersMatrix),
+                                                            self.getVector(j,clustersMatrix))
+        else:
+            for i in range (0,int(self.numClusters)):
+                for j in range(i+1,int(self.numClusters)):
+                    distancesMatrix[i][j] = self.getDistance(int(self.distMink),
+                                                            self.getVector(i,clustersMatrix),
+                                                            self.getVector(j,clustersMatrix))
         
         return distancesMatrix
     '''
@@ -539,47 +606,114 @@ class K_means:
     def getWord(self,index,wordList):
         
         return wordList[0,index]
+    
+    
+    
     '''
     @post: Dada la matriz de pertenencia membershipMatrix y
-    la lista de palabras wordList, imprime por pantalla y
-    en fichero las pertenencias de los clusters
+    la lista de palabras wordList,genera un fichero las pertenencias de los clusters
     '''
     def printClusterAssingments(self,membershipMatrix,wordList,out_file):
         
         rows = self.getNumMatrixRows(membershipMatrix)
         cols = self.getNumMatrixColumns(membershipMatrix)
-        
-        listaClusters = []        
+    
+        listaClusters = []
         
         for j in range (0, cols):
             lista = []
             lista.append('Cluster '+str(j+1))
-            for i in range (0,rows):
+            for i in range (0,rows):#Por cada cluster
                 if(membershipMatrix[i,j] == 1):
                     lista.append(self.getWord(i,wordList))
+                    
+                    
             listaClusters.append(lista)
-               
+            
+        for i in range(0,len(listaClusters)):
+            out_file.write(str(listaClusters[i])+'\n')
+    
+    
+    '''
+    @post: Dada la matriz de pertenencia membershipMatrix y
+    la lista de palabras wordList,genera un fichero las pertenencias de los clusters
+    y realiza gráficos
+    '''
+    def printPlotClusterAssingments(self,membershipMatrix,wordList,out_file,instancesMatrix,clustersMatrix,it):
 
-        for i in range (0,len(listaClusters)):
-                #print listaClusters[i]
-                out_file.write(str(listaClusters[i])+'\n')
-                
-    def plotInstancesAndCentroids(self,instancesMatrix,clustersMatrix):
+        fig = plt.figure()
+        fig.canvas.set_window_title('KMeans_K=%s_N=%s_Init=%s_Dist=%s_IG=%s_It=%s.png' % 
+        (str(self.numClusters),str(self.getNumMatrixRows(instancesMatrix)),
+         str(self.opcIni),str(self.distMink),str(self.distInt),str(it)))
+                    
+
         
+        rows = self.getNumMatrixRows(membershipMatrix)
+        cols = self.getNumMatrixColumns(membershipMatrix)
+    
         #Define los limites en x
-        plt.xlim(instancesMatrix.min(),instancesMatrix.max())
+        plt.xlim(instancesMatrix.min()-1,instancesMatrix.max()+1)
         #Define los limites en y
-        plt.ylim(instancesMatrix.min(),instancesMatrix.max())
-
-        #Dibuja las instancias        
-        plt.plot(zip(*instancesMatrix)[0], zip(*instancesMatrix)[1], '.', alpha=0.5)
+        plt.ylim(instancesMatrix.min()-1,instancesMatrix.max()+1)    
         
-        #Dibuja los centroides        
-        plt.plot(zip(*clustersMatrix)[0], zip(*clustersMatrix)[1], 'ro')
+        listaClusters = []
+        listaInstancesPrint = []
         
-        plt.savefig('plots/kpp_init_%s_N%s_K%s.png' % (str(self.opcIni),str(self.getNumMatrixRows(instancesMatrix)),str(self.numClusters)), \
-                    bbox_inches='tight', dpi=200)
+        for j in range (0, cols):
+            lista = []
+            lista.append('Cluster '+str(j+1))
+            listaPrint = [] 
+            for i in range (0,rows):#Por cada cluster
+                if(membershipMatrix[i,j] == 1):
+                    lista.append(self.getWord(i,wordList))
+                    listaPrint.append(i)
+                    
+            listaClusters.append(lista)
+            listaInstancesPrint.append(listaPrint)
+        colors = cm.rainbow(np.linspace(0,1,int(self.numClusters)))
+        for i in range(0,len(listaClusters)):
+            col = colors[i]
+            out_file.write(str(listaClusters[i])+'\n')
+            clustN = listaInstancesPrint[i]
+            arrayInstancias = self.initializeMatrix(len(clustN),2)
+            for j in range(0,len(clustN)):
+                arrayInstancias[j,:] = self.getVector(clustN[j],instancesMatrix)
+                #Este array contiene las instancias pertenecientes a cada cluster
+                #En cada iteracion, un cluster diferente
+            plt.scatter(zip(*arrayInstancias)[0], zip(*arrayInstancias)[1],color=col)
         
+        #Dibuja los centroides
+        plt.scatter(zip(*clustersMatrix)[0], zip(*clustersMatrix)[1],s=80,marker='>',c=colors)
+        
+    '''
+    @post: Devuelve la dos matrices pasadas por parámetros con PCA aplicado para 2 componentes
+    @note: Utiliza la librería Scipy
+    @deprecated
+    '''    
+    def pcaInstancesAndClusters(self,instancesMatrix,clustersMatrix):
+        pca = decomposition.PCA(n_components=2)
+        pca.fit(instancesMatrix)
+        instPCA = pca.transform(instancesMatrix)
+        
+        pca2 = decomposition.PCA(n_components=2)
+        pca2.fit(clustersMatrix)
+        clustPCA = pca2.transform(clustersMatrix)
+        
+        return instPCA,clustPCA
+        
+    '''
+    @post: Devuelve la matriz pasada por parámetro con PCA aplicado para 2 componentes
+    @note: Utiliza la librería Scipy
+    '''    
+    def pcaInstances(self,instancesMatrix):
+        pca = decomposition.PCA(n_components=2)
+        pca.fit(instancesMatrix)
+        instPCA = pca.transform(instancesMatrix)
+        
+        return instPCA
+        
+   
+    
         
             
         
@@ -713,13 +847,16 @@ if __name__=="__main__":
         inter = sys.argv[4]
         crit = sys.argv[5]
         terminacion = sys.argv[6]
+        if(len(sys.argv)==8):        
+            pca = sys.argv[7]
+        else:
+            pca = ''
         
         
 
         
-        kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion)
+        kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
         instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
-        
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
         
 
@@ -735,4 +872,4 @@ if __name__=="__main__":
         esto lo quitaremos:
         '''
         print 'pruebas:'
-        test6()
+        #test6()
