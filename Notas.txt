@@ -16,7 +16,7 @@ membershipMatrix = np.ndarray(shape=(rows,columns),dtype=bool)
 
 ===============================================================================
 
-
+TODO: Echar un vistazo al tema del índice Silhouette porque no estoy seguro de haberlo hecho de la manera correcta.
 
 ===============================================================================
  
