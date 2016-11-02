@@ -574,7 +574,7 @@ class K_means:
         tClustering = time.clock() - t0
         print 'CLUSTERING FINALIZADO'
         print 'Tiempo total clustering: ',;print tClustering,;print ' segundos.'
-        print 'Tiempo por iteración : ',;print tClustering/iteraciones,;print ' segundos/iteración.'
+        print 'Tiempo por iteración : ',;print tClustering/(iteraciones+1),;print ' segundos/iteración.'
         print 'KMeans - End'
         
 
