@@ -424,15 +424,15 @@ class K_means:
     def sse(self, clustersMatrix, membershipMatrix, instancesMatrix):
         sseAcum = 0
         indexCl = 0
-        for cluster in clustersMatrix
+        for cluster in clustersMatrix:
             sseCluster = 0
             indexInstance = 0
-            for instancia in instancesMatrix
+            for instancia in instancesMatrix:
                 if membershipMatrix[indexCl,indexInstance] ==1:
                     sseCluster += (self.getDistance(2,cluster,instancia))**2
-                indexInstance++
+                indexInstance+=1
             sseAcum+=sseCluster
-            indexCl++
+            indexCl+=1
         return sseAcum
     
     '''
@@ -875,6 +875,10 @@ def test6():
     for centroide in centroides:
         print centroide[2:4]
        
+def test7():
+    kmeans = K_means(5,'c',2,'s','a',300,'')
+    instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
+    kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
 
 def extraerFragmentoFichero():
     
@@ -951,4 +955,4 @@ if __name__=="__main__":
         esto lo quitaremos:
         '''
         print 'pruebas:'
-        test6()
+        test7()
