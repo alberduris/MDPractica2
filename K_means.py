@@ -417,9 +417,23 @@ class K_means:
                         distMax = dist
         return distMax
         
-    
 
-
+    '''
+    @post: devuelve el valor sse resultante de sumar los valores sse de todos los clusters.
+    '''
+    def sse(self, clustersMatrix, membershipMatrix, instancesMatrix):
+        sseAcum = 0
+        indexCl = 0
+        for cluster in clustersMatrix
+            sseCluster = 0
+            indexInstance = 0
+            for instancia in instancesMatrix
+                if membershipMatrix[indexCl,indexInstance] ==1:
+                    sseCluster += (self.getDistance(2,cluster,instancia))**2
+                indexInstance++
+            sseAcum+=sseCluster
+            indexCl++
+        return sseAcum
     
     '''
     @post: Asigna el centroide más cercano para cada instancia actualizando
