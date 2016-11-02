@@ -794,17 +794,19 @@ class K_means:
     @post: Calcula índice Silhouette para todas las instancias
     '''
     def silhouetteMain(self,instancesMatrix,membershipMatrix):
+        t0 = time.clock()
         silhouetteX = 0        
         for i in range(0,self.getNumMatrixRows(membershipMatrix)):
-            print 'Silhouette instancia ',;print i
+            if(i%100==0):print 'Silhouette instancia ',;print i
             foreign = kmeans.getNeighboursAndForeignersDistance(i,instancesMatrix,membershipMatrix)
             a,b = kmeans.getABSilhouette(foreign)
             sil = kmeans.getSilhouette(a,b)            
             silhouetteX =+ sil
             #print sil
-            
+        tSilhouette = time.clock() - t0
         print 'Índice Silhouette conjunto: ',;print silhouetteX/self.getNumMatrixRows(membershipMatrix)
-            
+        print 'Tiempo total índice Silhouette: ',;print tSilhouette
+        print 'Relación: ',;print tSilhouette/i,;print 'segundos/instancia'
 
 '''
 Métodos para pruebas - En realidad no son métodos
@@ -891,7 +893,7 @@ def extraerFragmentoFichero():
     f = open('GoogleNews-vectors-negative300.txt','r')
     f_out = open('GoogleNews10000.txt','w')
     
-    for i in range (0,100000):
+    for i in range (0,10000):
         line = f.readline()
         f_out.write(str(line))
         
@@ -945,9 +947,9 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews-vectors-negative300.txt")
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
-        #kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
+        kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
         
         
         
