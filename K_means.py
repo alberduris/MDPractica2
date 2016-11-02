@@ -428,7 +428,7 @@ class K_means:
             sseCluster = 0
             indexInstance = 0
             for instancia in instancesMatrix:
-                if membershipMatrix[indexCl,indexInstance] ==1:
+                if membershipMatrix[indexInstance,indexCl] ==1:
                     sseCluster += (self.getDistance(2,cluster,instancia))**2
                 indexInstance+=1
             sseAcum+=sseCluster
@@ -879,6 +879,7 @@ def test7():
     kmeans = K_means(5,'c',2,'s','a',300,'')
     instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
     kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
+    print kmeans.sse(clustersMatrix, membershipMatrix, instancesMatrix)
 
 def extraerFragmentoFichero():
     
