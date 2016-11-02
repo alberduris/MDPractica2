@@ -78,7 +78,7 @@ class K_means:
         print 'Atributos por instancia: ',;print numFileColumns 
         print 'Elementos procesados: ',;print numFileColumns*numFileRows 
         print 'Tiempo total inicialización: ',;print tInicializacion,;print ' segundos.'
-        print 'Tiempo/elemento: ',;print (tInicializacion/(numFileColumns*numFileRows)),;print '\n\n'
+        print 'Relación: ',;print ((tInicializacion/(numFileColumns*numFileRows))*1000),;print 'ms/elemento\n\n'
         
     
         return instancesMatrix,clustersMatrix,membershipMatrix,wordList
@@ -493,6 +493,7 @@ class K_means:
     '''
     def clustering(self,instancesMatrix,clustersMatrix,membershipMatrix,wordList):
         
+       
         
         print 'COMENZANDO CLUSTERING'
         
@@ -553,11 +554,15 @@ class K_means:
             print 'Variación: ',;print variation
                  
                 
-            
+        if(self.crit == 'n'):
+            iteraciones = i
+        else:
+            iteraciones = cont
         
         tClustering = time.clock() - t0
         print 'CLUSTERING FINALIZADO'
         print 'Tiempo total clustering: ',;print tClustering,;print ' segundos.'
+        print 'Tiempo por iteración : ',;print tClustering/iteraciones,;print ' segundos/iteración.'
         print 'KMeans - End'
         
 
@@ -925,7 +930,7 @@ if __name__=="__main__":
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
         instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
-        kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
+        #kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
         
         
         
