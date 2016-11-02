@@ -947,7 +947,7 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews-vectors-negative300.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
         kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
         
