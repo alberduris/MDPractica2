@@ -510,15 +510,9 @@ class K_means:
         print 'COMENZANDO CLUSTERING'
         
         t0 = time.clock()
-<<<<<<< HEAD
         
         f = open('cluster_assingments.txt','w')   
         
-=======
-        
-        f = open('cluster_assingments.txt','w')   
-        
->>>>>>> 2a9785d0a78d00c619411971f6ed9cb2fbe9a93a
         #Asignamos las pertenencias iniciales
         f.write('Pertenencias iniciales :\n')        
         membershipMatrix = self.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
@@ -576,7 +570,6 @@ class K_means:
             iteraciones = i
         else:
             iteraciones = cont
-<<<<<<< HEAD
         
         tClustering = time.clock() - t0
         print 'CLUSTERING FINALIZADO'
@@ -584,15 +577,6 @@ class K_means:
         print 'Tiempo por iteración : ',;print tClustering/iteraciones,;print ' segundos/iteración.'
         print 'KMeans - End'
         
-=======
-        
-        tClustering = time.clock() - t0
-        print 'CLUSTERING FINALIZADO'
-        print 'Tiempo total clustering: ',;print tClustering,;print ' segundos.'
-        print 'Tiempo por iteración : ',;print tClustering/iteraciones,;print ' segundos/iteración.'
-        print 'KMeans - End'
-        
->>>>>>> 2a9785d0a78d00c619411971f6ed9cb2fbe9a93a
 
     '''
     @post: Devuelve la variación de la posición, en valor absoluto, entre los
@@ -608,7 +592,6 @@ class K_means:
         else:
             for i in range (0,int(self.numClusters)):
                 vari = vari + abs(self.getDistance(int(self.distMink),self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore)))            
-<<<<<<< HEAD
             
         return vari
     
@@ -807,235 +790,23 @@ class K_means:
     def getSilhouette(self,a,b):
         return b-a/max(a,b)
 
-=======
-            
-        return vari
-    
-    '''
-    @post: Calcula la matriz de distancias, eficientemente (diagonal superior),
-    siendo cada distancia la distancia entre los centroides de los clusters
-    @note: Creo que no sirve para nada, lo he hecho por error
-    '''
-    def getCentroidsDistance(self,clustersMatrix):
-
-        distancesMatrix = self.initializeMatrix(int(self.numClusters),int(self.numClusters))
-        
-        if(self.distMink == '0'):
-            for i in range (0,int(self.numClusters)):
-                for j in range(i+1,int(self.numClusters)):
-                    distancesMatrix[i][j] = self.getCosineDistance(self.getVector(i,clustersMatrix),
-                                                            self.getVector(j,clustersMatrix))
-        else:
-            for i in range (0,int(self.numClusters)):
-                for j in range(i+1,int(self.numClusters)):
-                    distancesMatrix[i][j] = self.getDistance(int(self.distMink),
-                                                            self.getVector(i,clustersMatrix),
-                                                            self.getVector(j,clustersMatrix))
-        
-        return distancesMatrix
-    '''
-    @post: Devuelve la palabra de índice i contenida en la
-    lista wordList
-    '''
-    def getWord(self,index,wordList):
-        
-        return wordList[0,index]
-    
-    
-    
-    '''
-    @post: Dada la matriz de pertenencia membershipMatrix y
-    la lista de palabras wordList,genera un fichero las pertenencias de los clusters
-    '''
-    def printClusterAssingments(self,membershipMatrix,wordList,out_file):
-        
-        rows = self.getNumMatrixRows(membershipMatrix)
-        cols = self.getNumMatrixColumns(membershipMatrix)
-    
-        listaClusters = []
-        
-        for j in range (0, cols):
-            lista = []
-            lista.append('Cluster '+str(j+1))
-            for i in range (0,rows):#Por cada cluster
-                if(membershipMatrix[i,j] == 1):
-                    lista.append(self.getWord(i,wordList))
-                    
-                    
-            listaClusters.append(lista)
-            
-        for i in range(0,len(listaClusters)):
-            out_file.write(str(listaClusters[i])+'\n')
-    
-    
-    '''
-    @post: Dada la matriz de pertenencia membershipMatrix y
-    la lista de palabras wordList,genera un fichero las pertenencias de los clusters
-    y realiza gráficos
-    '''
-    def printPlotClusterAssingments(self,membershipMatrix,wordList,out_file,instancesMatrix,clustersMatrix,it):
-
-        fig = plt.figure()
-        fig.canvas.set_window_title('KMeans_K=%s_N=%s_Init=%s_Dist=%s_IG=%s_It=%s' % 
-        (str(self.numClusters),str(self.getNumMatrixRows(instancesMatrix)),
-         str(self.opcIni),str(self.distMink),str(self.distInt),str(it)))
-                    
-
-        
-        rows = self.getNumMatrixRows(membershipMatrix)
-        cols = self.getNumMatrixColumns(membershipMatrix)
-    
-        #Define los limites en x
-        plt.xlim(instancesMatrix.min()-1,instancesMatrix.max()+1)
-        #Define los limites en y
-        plt.ylim(instancesMatrix.min()-1,instancesMatrix.max()+1)    
-        
-        listaClusters = []
-        listaInstancesPrint = []
-        
-        for j in range (0, cols):
-            lista = []
-            lista.append('Cluster '+str(j+1))
-            listaPrint = [] 
-            for i in range (0,rows):#Por cada cluster
-                if(membershipMatrix[i,j] == 1):
-                    lista.append(self.getWord(i,wordList))
-                    listaPrint.append(i)
-                    
-            listaClusters.append(lista)
-            listaInstancesPrint.append(listaPrint)
-        colors = cm.rainbow(np.linspace(0,1,int(self.numClusters)))
-        for i in range(0,len(listaClusters)):
-            col = colors[i]
-            out_file.write(str(listaClusters[i])+'\n')
-            clustN = listaInstancesPrint[i]
-            arrayInstancias = self.initializeMatrix(len(clustN),2)
-            for j in range(0,len(clustN)):
-                arrayInstancias[j,:] = self.getVector(clustN[j],instancesMatrix)
-                #Este array contiene las instancias pertenecientes a cada cluster
-                #En cada iteracion, un cluster diferente
-            plt.scatter(zip(*arrayInstancias)[0], zip(*arrayInstancias)[1],color=col)
-        
-        #Dibuja los centroides
-        plt.scatter(zip(*clustersMatrix)[0], zip(*clustersMatrix)[1],s=80,marker='>',c=colors)
-        
-    '''
-    @post: Devuelve la dos matrices pasadas por parámetros con PCA aplicado para 2 componentes
-    @note: Utiliza la librería Scipy
-    @deprecated
-    '''    
-    def pcaInstancesAndClusters(self,instancesMatrix,clustersMatrix):
-        pca = decomposition.PCA(n_components=2)
-        pca.fit(instancesMatrix)
-        instPCA = pca.transform(instancesMatrix)
-        
-        pca2 = decomposition.PCA(n_components=2)
-        pca2.fit(clustersMatrix)
-        clustPCA = pca2.transform(clustersMatrix)
-        
-        return instPCA,clustPCA
-        
-    '''
-    @post: Devuelve la matriz pasada por parámetro con PCA aplicado para 2 componentes
-    @note: Utiliza la librería Scipy
-    '''    
-    def pcaInstances(self,instancesMatrix):
-        pca = decomposition.PCA(n_components=2)
-        pca.fit(instancesMatrix)
-        instPCA = pca.transform(instancesMatrix)
-        
-        return instPCA
-        
-   
-    
-        
-    
-            
-    '''
-    @post: Devuelve una matriz tal que:
-    Filas = k 
-    Columnas = 2 --> Col1: Distancia acumulada ; Col2 = NumInstancias en ese cluster
-    '''
-    def getNeighboursAndForeignersDistance(self,index,instancesMatrix,membershipMatrix):
-        
-        distancesInstances = self.initializeMatrix(int(self.numClusters),2)
-        #Col1 = DistanciaTotal : #Col2 = NumInstancias
-        
-        for i in range(0,self.getNumMatrixRows(membershipMatrix)):#Por cada fila
-            for j in range(0,int(self.numClusters)):#Por cada columna
-                
-                if(membershipMatrix[i][j] == 1):
-                    
-                    if(self.distMink == '0'):
-                        distancesInstances[j][0] += self.getCosineDistance(self.getVector(index,instancesMatrix),
-                                                            self.getVector(i,instancesMatrix))
-                        distancesInstances[j][1] += 1
-                    else:
-                        distancesInstances[j][0] += self.getDistance(int(self.distMink),self.getVector(index,instancesMatrix),
-                                                            self.getVector(i,instancesMatrix))
-                        distancesInstances[j][1] += 1
-                
-        
-        return distancesInstances
-    
-    '''
-    @post: Devuelve a(xi) y b(xi) respecto a la matriz de distancias entre instancias 
-    que se le pase por parámetro.
-    @note: La matriz pasada por param será la salida del método getNeighboursAndForeignersDistances 
-    en el que se especificara para qué xi (instancia) se está calculando el a y b
-    '''
-    def getABSilhouette(self,distancesInstances):
-        
-        distExtranjeros = float('inf')
-        aux = 0
-        clusterPropio = np.amin(distancesInstances,axis=0)
-        clustersExtranjeros = distancesInstances-clusterPropio
-        
-        for i in range(0,self.getNumMatrixRows(clustersExtranjeros)):
-            aux = clustersExtranjeros[i][0]/clustersExtranjeros[i][1]
-            if(aux < distExtranjeros and aux != 0):
-                distExtranjeros = aux
-            
-            
-            
-        return clusterPropio[0]/clusterPropio[1],distExtranjeros
-    
-    '''
-    @post: Calcula índice Silhouette para una instancia
-    '''
-    def getSilhouette(self,a,b):
-        return b-a/max(a,b)
-
->>>>>>> 2a9785d0a78d00c619411971f6ed9cb2fbe9a93a
     '''
     @post: Calcula índice Silhouette para todas las instancias
     '''
     def silhouetteMain(self,instancesMatrix,membershipMatrix):
-<<<<<<< HEAD
         t0 = time.clock()
         silhouetteX = 0        
         for i in range(0,self.getNumMatrixRows(membershipMatrix)):
             if(i%100==0):print 'Silhouette instancia ',;print i
-=======
-        silhouetteX = 0        
-        for i in range(0,self.getNumMatrixRows(membershipMatrix)):
-            print 'Silhouette instancia ',;print i
->>>>>>> 2a9785d0a78d00c619411971f6ed9cb2fbe9a93a
             foreign = kmeans.getNeighboursAndForeignersDistance(i,instancesMatrix,membershipMatrix)
             a,b = kmeans.getABSilhouette(foreign)
             sil = kmeans.getSilhouette(a,b)            
             silhouetteX =+ sil
             #print sil
-<<<<<<< HEAD
         tSilhouette = time.clock() - t0
         print 'Índice Silhouette conjunto: ',;print silhouetteX/self.getNumMatrixRows(membershipMatrix)
         print 'Tiempo total índice Silhouette: ',;print tSilhouette
         print 'Relación: ',;print tSilhouette/i,;print 'segundos/instancia'
-=======
-            
-        print 'Índice Silhouette conjunto: ',;print silhouetteX/self.getNumMatrixRows(membershipMatrix)
-            
->>>>>>> 2a9785d0a78d00c619411971f6ed9cb2fbe9a93a
 
 '''
 Métodos para pruebas - En realidad no son métodos
@@ -1122,11 +893,7 @@ def extraerFragmentoFichero():
     f = open('GoogleNews-vectors-negative300.txt','r')
     f_out = open('GoogleNews10000.txt','w')
     
-<<<<<<< HEAD
     for i in range (0,10000):
-=======
-    for i in range (0,100000):
->>>>>>> 2a9785d0a78d00c619411971f6ed9cb2fbe9a93a
         line = f.readline()
         f_out.write(str(line))
         
@@ -1180,15 +947,9 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
-<<<<<<< HEAD
         instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews-vectors-negative300.txt")
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
         kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
-=======
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
-        kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
-        #kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
->>>>>>> 2a9785d0a78d00c619411971f6ed9cb2fbe9a93a
         
         
         
