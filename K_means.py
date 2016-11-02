@@ -185,18 +185,13 @@ class K_means:
                 if j!=i:
                     centroidsDistances[i] += self.getDistance(self.distMink,self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
         # self.getVector(i,clustersMatrix) == clustersMatrix[i] == clustersMatrix[i,:]
-        print str(clustMatrix.shape[0]) + "un valor"
+        #print str(clustMatrix.shape[0]) + "un valor"
         while clustMatrix.shape[0]>int(self.numClusters):
-            ind = centroidsDistances.tolist().index(min(centroidsDistances))
-            instanceToEliminate = clustMatrix[ind,:]
-            clustMatrix = np.delete(clustMatrix,ind)
+            minimo = min(centroidsDistances)
+            print minimo,; print clustMatrix.shape[0]
+            ind = centroidsDistances.tolist().index(minimo)
+            clustMatrix = np.delete(clustMatrix,ind, 0) 
             centroidsDistances = np.delete(centroidsDistances,ind)
-            for i in range(0,clustMatrix.shape[0]): #actualizamos las distancias entre instancias
-                print str(clustMatrix.shape[0]) + "valor diferente"
-                print clustMatrix.shape[0]
-                print instanceToEliminate.shape[0]
-                print self.getVector(i,clustMatrix).shape[0] #el indice i es mayor que el tamano del vector.
-                centroidsDistances[i] -= self.getDistance(self.distMink,self.getVector(i,clustMatrix),instanceToEliminate)
                 
         return clustMatrix
         
@@ -422,6 +417,9 @@ class K_means:
                         distMax = dist
         return distMax
         
+    
+
+
     
     '''
     @post: Asigna el centroide más cercano para cada instancia actualizando
@@ -857,7 +855,7 @@ def test5():
     
 def test6():
    
-    k = K_means(5,'c',2,'s','a',300)
+    k = K_means(5,'c',2,'s','a',300,'')
     instancesMatrix,clustersMatrix,membershipMatrix,wordList = k.initializeMatrixes("vectors_peque.txt")
     centroides = k.set2KCentroids(k.getNumMatrixColumns(instancesMatrix),instancesMatrix)
     for centroide in centroides:
@@ -939,4 +937,4 @@ if __name__=="__main__":
         esto lo quitaremos:
         '''
         print 'pruebas:'
-        #test6()
+        test6()
