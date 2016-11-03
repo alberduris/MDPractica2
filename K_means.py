@@ -16,6 +16,7 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 import time
 import sys 
+import os
 import numpy as np
 import numpy.random as random
 import Preprocesado as Preprocesado
@@ -140,7 +141,7 @@ class K_means:
             
             
         elif(self.opcIni == 'b'):
-            raise Exception('Not implemented yet')
+            clustersMatrix = self.set2KCentroids(self.getNumMatrixColumns(instancesMatrix),instancesMatrix)
             
         elif(self.opcIni == 'c'):
             clustersMatrix = self.plusPlusInit(self.getNumMatrixColumns(instancesMatrix),instancesMatrix)
@@ -422,6 +423,7 @@ class K_means:
     @post: devuelve el valor sse resultante de sumar los valores sse de todos los clusters.
     '''
     def sse(self, clustersMatrix, membershipMatrix, instancesMatrix):
+        t0 = time.clock()
         sseAcum = 0
         indexCl = 0
         for cluster in clustersMatrix:
@@ -433,6 +435,9 @@ class K_means:
                 indexInstance+=1
             sseAcum+=sseCluster
             indexCl+=1
+        tSSE = time.clock() - t0
+        print 'Tiempo total SSE: ',;print tSSE,;print ' segundos.'
+        print 'Relación : ',;print tSSE/self.getNumMatrixRows(membershipMatrix)*1000,;print ' ms/instancia.'
         return sseAcum
     
     '''
@@ -540,7 +545,7 @@ class K_means:
             cont = -1
             variation = float('inf')
             clustersMatrixBefore = clustersMatrix.copy()
-            while(variation > int(self.cte)):
+            while(variation > float(self.cte)):
                 cont += 1
                 print 'Iteración ',;print cont
                 clustersMatrix = self.setUpdatedCentroids(instancesMatrix,clustersMatrix,membershipMatrix)
@@ -920,15 +925,64 @@ def extraerFragmentoFichero():
             wordList[i,j] = str(word)
             
         return wordList
+        
+def kPerformanceTest():
+    
+    
 
+    
+    performance_file = open('kPerformanceTest.csv','w')
+    
+    
+    if (Preprocesado.preMain()):
+        print 'Parámetros correctos'
+        
+        k = sys.argv[1]
+        ini = sys.argv[2]
+        minkwsk = sys.argv[3]
+        inter = sys.argv[4]
+        crit = sys.argv[5]
+        terminacion = sys.argv[6]
+        if(len(sys.argv)==8):        
+            pca = sys.argv[7]
+        else:
+            pca = ''
+        
+        performance_file.write('KMeans_Init=%s_Dist=%s \n' % (str(ini),str(minkwsk)))
+        performance_file.write('k,SSE\n')
+        
+
+        #Julen, aquí vete poniendo el inicial y el final (exclusivo el final)
+        #Salva los ficheros cada vez que si no te escribe encima eh
+        for i in range (2,20):
+            
+            print 'ITERACIÓN PARA K = ',;print i
+        
+            kmeans = K_means(i,ini,minkwsk,inter,crit,terminacion,pca)
+            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
+            kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
+            
+            sse = kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix)
+            
+            performance_file.write(str(i)+','+str(sse)+'\n')
+            
+        
+        
+    
+    else: #Parámetros incorrectos
+        
+        print 'parametros incorrectos'
+    
 
 #para pruebas
 if __name__=="__main__":
     print 'K_means : main'
+
+    kPerformanceTest()    
     
     #extraerFragmentoFichero()
     
-    
+    '''
     if (Preprocesado.preMain()):
         print 'Parámetros correctos'
         
@@ -947,10 +1001,10 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews100000.txt")
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
-        kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
-        
+        #kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
+        print(kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix))
         
         
         
@@ -959,8 +1013,4 @@ if __name__=="__main__":
         
         print 'parametros incorrectos'
 
-        '''
-        esto lo quitaremos:
-        '''
-        print 'pruebas:'
-        test7()
+'''
