@@ -931,7 +931,7 @@ def kPerformanceTest():
     
 
     
-    performance_file = open('kPerformanceTest.csv','w')
+    performance_file = open('kPerformanceTest.csv','a') #he cambiado esto para que haga append
     
     
     if (Preprocesado.preMain()):
@@ -948,18 +948,19 @@ def kPerformanceTest():
         else:
             pca = ''
         
-        performance_file.write('KMeans_Init=%s_Dist=%s \n' % (str(ini),str(minkwsk)))
+        performance_file.write('KMeans_Init=%s,Dist=%s,Crit=%s,Term=%s \n' % (str(ini),str(minkwsk),str(crit),str(terminacion)))
+        performance_file.write('c= inicializacion kmeans++,Dist 0 => Cosine Distance en lugar de Minkwsk,criterio d=umbral' )
         performance_file.write('k,SSE\n')
         
 
         #Julen, aquí vete poniendo el inicial y el final (exclusivo el final)
         #Salva los ficheros cada vez que si no te escribe encima eh
-        for i in range (2,20):
+        for i in range (1,300):
             
             print 'ITERACIÓN PARA K = ',;print i
         
             kmeans = K_means(i,ini,minkwsk,inter,crit,terminacion,pca)
-            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
+            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
             kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
             
             sse = kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix)
