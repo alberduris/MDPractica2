@@ -961,7 +961,7 @@ def kPerformanceTest():
             print 'ITERACIÓN PARA K = ',;print i
         
             kmeans = K_means(i,ini,minkwsk,inter,crit,terminacion,pca)
-            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
+            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews2000.txt")
             kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
             
             sse = kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix)
@@ -969,7 +969,7 @@ def kPerformanceTest():
             performance_file.write(str(i)+','+str(sse)+'\n')
             
         
-        
+        performance_file.close()
     
     else: #Parámetros incorrectos
         
@@ -1020,9 +1020,9 @@ def tirarDelHilo():
 #para pruebas
 if __name__=="__main__":
     
-    tirarDelHilo()
+    #tirarDelHilo()
 
-    #kPerformanceTest()    
+    kPerformanceTest()    
     
     #extraerFragmentoFichero()
     
