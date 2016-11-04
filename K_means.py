@@ -184,7 +184,7 @@ class K_means:
         for i in range (0,int(self.numClusters)*2):
             for j in range (0,int(self.numClusters)*2):
                 if j!=i:
-                    centroidsDistances[i] += self.getDistance(self.distMink,self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
+                    centroidsDistances[i] += self.getDistance(float(self.distMink),self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
         # self.getVector(i,clustersMatrix) == clustersMatrix[i] == clustersMatrix[i,:]
         #print str(clustMatrix.shape[0]) + "un valor"
         while clustMatrix.shape[0]>int(self.numClusters):
@@ -380,7 +380,7 @@ class K_means:
     def singleLink(self,alfa,conjunto1,conjunto2):
 
         
-        if(int(self.distMink) == 0):
+        if(str(self.distMink) == '0'):
             distMin = self.getCosineDistance(conjunto1[0],conjunto2[0])
             for instance1 in conjunto1:
                 for instance2 in conjunto2:
@@ -459,6 +459,7 @@ class K_means:
                     aux = self.getCosineDistance(instance,cluster)
                 else:
                     aux = self.getDistance(float(self.distMink),instance,cluster)
+                   
                 
                 
                 if(aux < distanceToCentroid):
@@ -596,7 +597,7 @@ class K_means:
                 vari = vari + abs(self.getCosineDistance(self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore))) 
         else:
             for i in range (0,int(self.numClusters)):
-                vari = vari + abs(self.getDistance(int(self.distMink),self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore)))            
+                vari = vari + abs(self.getDistance(float(self.distMink),self.getVector(i,clustersMatrix),self.getVector(i,clustersMatrixBefore)))            
             
         return vari
     
@@ -617,7 +618,7 @@ class K_means:
         else:
             for i in range (0,int(self.numClusters)):
                 for j in range(i+1,int(self.numClusters)):
-                    distancesMatrix[i][j] = self.getDistance(int(self.distMink),
+                    distancesMatrix[i][j] = self.getDistance(float(self.distMink),
                                                             self.getVector(i,clustersMatrix),
                                                             self.getVector(j,clustersMatrix))
         
@@ -760,7 +761,7 @@ class K_means:
                                                             self.getVector(i,instancesMatrix))
                         distancesInstances[j][1] += 1
                     else:
-                        distancesInstances[j][0] += self.getDistance(int(self.distMink),self.getVector(index,instancesMatrix),
+                        distancesInstances[j][0] += self.getDistance(float(self.distMink),self.getVector(index,instancesMatrix),
                                                             self.getVector(i,instancesMatrix))
                         distancesInstances[j][1] += 1
                 
@@ -973,17 +974,19 @@ def kPerformanceTest():
     else: #Parámetros incorrectos
         
         print 'parametros incorrectos'
-    
-
-#para pruebas
-if __name__=="__main__":
+   
+'''
+@post: Método principal 
+@note: De aquí surge la magia
+'''     
+def tirarDelHilo():
     print 'K_means : main'
 
-    kPerformanceTest()    
+    #kPerformanceTest()    
     
     #extraerFragmentoFichero()
     
-    '''
+    
     if (Preprocesado.preMain()):
         print 'Parámetros correctos'
         
@@ -1002,7 +1005,7 @@ if __name__=="__main__":
 
         
         kmeans = K_means(k,ini,minkwsk,inter,crit,terminacion,pca)
-        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews100000.txt")
+        instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors.txt")
         kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
         #kmeans.silhouetteMain(instancesMatrix,membershipMatrix)
         print(kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix))
@@ -1014,4 +1017,15 @@ if __name__=="__main__":
         
         print 'parametros incorrectos'
 
-'''
+#para pruebas
+if __name__=="__main__":
+    
+    tirarDelHilo()
+
+    #kPerformanceTest()    
+    
+    #extraerFragmentoFichero()
+    
+    
+    
+
