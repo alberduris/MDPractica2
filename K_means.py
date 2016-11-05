@@ -184,7 +184,10 @@ class K_means:
         for i in range (0,int(self.numClusters)*2):
             for j in range (0,int(self.numClusters)*2):
                 if j!=i:
-                    centroidsDistances[i] += self.getDistance(float(self.distMink),self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
+                    if self.distMink=='0':
+                        centroidsDistances[i] += self.getCosineDistance(self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
+                    else:    
+                        centroidsDistances[i] += self.getDistance(float(self.distMink),self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
         # self.getVector(i,clustersMatrix) == clustersMatrix[i] == clustersMatrix[i,:]
         #print str(clustMatrix.shape[0]) + "un valor"
         while clustMatrix.shape[0]>int(self.numClusters):
@@ -927,6 +930,108 @@ def extraerFragmentoFichero():
             
         return wordList
         
+def generalPerformanceTest():
+    
+    
+
+    
+    performance_file = open('generalPerformanceTest.csv','a') #he cambiado esto para que haga append
+    
+    #independientemente de los parametros que se le pasen
+ 
+    minkwsk = '0' #cosine  MUY RICO ALBERTO TOMAS LOS NUMEROS COMO CARACTERES D:<
+    inter = 's' #irrelevante
+    crit = 'd' #criterio umbral
+    terminacion = 0.001
+    pca = ''
+    
+    performance_file.write('VARIANDO INICIALIZACION,Dist 0 => Cosine Distance en lugar de Minkwsk,criterio d=umbral,umbral=0.001' )
+    
+    
+
+    #inicial inclusive final exclusive
+    for j in range(1,4):
+        if j==1:
+            performance_file.write('random initialization\n')
+            ini='a'
+        elif j==2:
+            performance_file.write('2K initialization\n')
+            ini='b'
+        else:
+            performance_file.write('Kmeans++ initialization\n')
+            ini='c'
+
+        for i in range (20,26):
+            kmeans = K_means(i,ini,minkwsk,inter,crit,terminacion,pca)
+            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews2000.txt")
+            kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
+            
+            sse = kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix)
+            performance_file.write('k,SSE\n')
+            performance_file.write(str(i)+','+str(sse)+'\n')
+    
+    ini = 'c' 
+    #ahora variaremos cosine y minks distance
+    inter = 's' #irrelevante
+    crit = 'd' #criterio umbral
+    terminacion = 0.001
+    pca = ''
+    
+    performance_file.write('VARIANDO DISTANCIA MINKSK (y coseno),inicializacion = k++,criterio d=umbral,umbral=0.001' )
+    
+    
+
+    #inicial inclusive final exclusive
+    for j in range(0,4):
+        minkwsk = j
+        if j==0:
+            minkwsk = '0'
+            performance_file.write('distancia coseno\n')
+        else:
+            performance_file.write('distancia minkovski =' + str(j) + ' \n')
+       
+        for i in range (20,26):
+            kmeans = K_means(i,ini,minkwsk,inter,crit,terminacion,pca)
+            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews2000.txt")
+            kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
+            
+            sse = kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix)
+            performance_file.write('k,SSE\n')
+            performance_file.write(str(i)+','+str(sse)+'\n')
+
+    ini = 'c' 
+    minkwsk = '0'
+    inter = 's' #irrelevante
+    pca = ''
+    
+    performance_file.write('VARIANDO ENTRE UMBRAL Y NUM IT FIJAS,inicializacion = k++, distancia coseno' )
+    
+    
+
+    #inicial inclusive final exclusive
+    for j in range(0,2):
+        if j==0:
+            crit = 'd' #criterio umbral
+            terminacion = 0.001
+            performance_file.write('umbral fijo, 0.001 \n')
+        else:
+            crit = 'n'
+            terminacion = 7
+            performance_file.write('num iteraciones fijo, 7 \n')
+        for i in range (20,26):
+            kmeans = K_means(i,ini,minkwsk,inter,crit,terminacion,pca)
+            instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("GoogleNews2000.txt")
+            kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
+            
+            sse = kmeans.sse(clustersMatrix,membershipMatrix,instancesMatrix)
+            performance_file.write('k,SSE\n')
+            performance_file.write(str(i)+','+str(sse)+'\n')
+
+    performance_file.close()
+
+
+
+
 def kPerformanceTest():
     
     
@@ -1021,8 +1126,8 @@ def tirarDelHilo():
 if __name__=="__main__":
     
     #tirarDelHilo()
-
-    kPerformanceTest()    
+    generalPerformanceTest()
+    #kPerformanceTest()    
     
     #extraerFragmentoFichero()
     
