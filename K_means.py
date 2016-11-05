@@ -1125,8 +1125,8 @@ def tirarDelHilo():
 #para pruebas
 if __name__=="__main__":
     
-    #tirarDelHilo()
-    generalPerformanceTest()
+    tirarDelHilo()
+    #generalPerformanceTest()
     #kPerformanceTest()    
     
     #extraerFragmentoFichero()
