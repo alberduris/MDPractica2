@@ -4,10 +4,6 @@
 """
 @authors: Julen, Alberto, Till
 
-
-
-        
-
 """
 
 from sklearn import decomposition
@@ -16,7 +12,6 @@ from scipy import spatial
 import matplotlib.pyplot as plt
 import time
 import sys 
-import os
 import numpy as np
 import numpy.random as random
 import Preprocesado as Preprocesado
@@ -33,7 +28,7 @@ class K_means:
         self.pca = pca
         
         
-        print "KMeans inicializado - Trabajo por hacer D:"
+        print "KMeans inicializado"
         
     
 
@@ -85,9 +80,6 @@ class K_means:
         return instancesMatrix,clustersMatrix,membershipMatrix,wordList
         
         
-        
-        
-
     '''
     @post: Inicializa la matriz de las instancias y la wordList
     '''
@@ -136,13 +128,9 @@ class K_means:
     def initializeClustersAndMembership(self,instancesMatrix):
         
         if(self.opcIni == 'a'):
-            #Inicializar matriz de clusters con ceros
             clustersMatrix = self.setRandomCentroids(self.getNumMatrixColumns(instancesMatrix),instancesMatrix)
-            
-            
         elif(self.opcIni == 'b'):
             clustersMatrix = self.set2KCentroids(self.getNumMatrixColumns(instancesMatrix),instancesMatrix)
-            
         elif(self.opcIni == 'c'):
             clustersMatrix = self.plusPlusInit(self.getNumMatrixColumns(instancesMatrix),instancesMatrix)
             
@@ -167,7 +155,6 @@ class K_means:
         return clustersMatrix
         
     '''
-    @pre: k nunca es mayor que 300. ?
     @post: Genera 2k centroides y devuelve los k más separados entre sí. 
     @note: Muchas dudas sobre la eficiencia de este algoritmo.
 
@@ -188,8 +175,7 @@ class K_means:
                         centroidsDistances[i] += self.getCosineDistance(self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
                     else:    
                         centroidsDistances[i] += self.getDistance(float(self.distMink),self.getVector(j,clustMatrix),self.getVector(i,clustMatrix))
-        # self.getVector(i,clustersMatrix) == clustersMatrix[i] == clustersMatrix[i,:]
-        #print str(clustMatrix.shape[0]) + "un valor"
+        
         while clustMatrix.shape[0]>int(self.numClusters):
             minimo = min(centroidsDistances)
             print minimo,; print clustMatrix.shape[0]
@@ -216,13 +202,19 @@ class K_means:
         
         for i in range (1,int(self.numClusters)):#Hasta tener k centroides 
             
+            #Siendo Dist la distancia más corta entre una instancia y el centro más cercano 
+            #Dist2 = Dist^2
+            Dist2 = np.array([min([np.linalg.norm(instance-centroid)**2 for centroid in clustersMatrix]) for instance in instancesMatrix])
+
+            #Generar la función de probabilidad que define KMeans++            
+            probability = Dist2/Dist2.sum()
+            sum_prob = probability.cumsum()
             
-            D2 = np.array([min([np.linalg.norm(instance-centroid)**2 for centroid in clustersMatrix]) for instance in instancesMatrix])
-            prob = D2/D2.sum()
-            cumprob = prob.cumsum()
-            r = random.random()
-            ind = np.where(cumprob >= r)[0][0]
-            next_centroid = self.getVector(ind,instancesMatrix)
+            #Seleccionar el siguiente centroide
+            instanceNum = random.random()
+            index = np.where(sum_prob >= instanceNum)[0][0]
+            next_centroid = self.getVector(index,instancesMatrix)
+            #Asignar el siguiente centroide
             clustersMatrix[i,:] = next_centroid
         
         return clustersMatrix
@@ -354,7 +346,7 @@ class K_means:
     '''    
 
     '''
-    @pre: alfa numero real no negativo, vectores 1 y 2 del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
+    @pre: alfa numero real no negativo, vectores 1 y 2 del tipo np.array() 
     @note: interesa que este metodo sea muy eficiente, surgen muchas dudas
     @post: la distancia de minkovski (float number) entre ambos vectores segun el parametro alfa.
     '''      
@@ -400,7 +392,7 @@ class K_means:
                         distMin = dist
         return distMin
     '''
-    @pre: dos conjuntos de vectores del tipo np.array() (¿a los que previamente se les ha extraido la clase?)
+    @pre: dos conjuntos de vectores del tipo np.array()
     @note: (extension de pre) estos dos conjuntos seran del tipo np.array(). (hay otra forma de establecerlos mas eficiente?)
     @post: la distancia (float number) entre ambos conjuntos determinada por la distancia mayor entre dos vectores de conjuntos diferentes.
     '''
@@ -423,7 +415,7 @@ class K_means:
         
 
     '''
-    @post: devuelve el valor sse resultante de sumar los valores sse de todos los clusters.
+    @post: devuelve el valor SSE resultante de sumar los valores sse de todos los clusters.
     '''
     def sse(self, clustersMatrix, membershipMatrix, instancesMatrix):
         t0 = time.clock()
@@ -738,12 +730,7 @@ class K_means:
         instPCA = pca.transform(instancesMatrix)
         
         return instPCA
-        
-   
-    
-        
-    
-            
+
     '''
     @post: Devuelve una matriz tal que:
     Filas = k 
@@ -807,107 +794,19 @@ class K_means:
         silhouetteX = 0        
         for i in range(0,self.getNumMatrixRows(membershipMatrix)):
             if(i%100==0):print 'Silhouette instancia ',;print i
-            foreign = kmeans.getNeighboursAndForeignersDistance(i,instancesMatrix,membershipMatrix)
-            a,b = kmeans.getABSilhouette(foreign)
-            sil = kmeans.getSilhouette(a,b)            
+            foreign = self.getNeighboursAndForeignersDistance(i,instancesMatrix,membershipMatrix)
+            a,b = self.getABSilhouette(foreign)
+            sil = self.getSilhouette(a,b)            
             silhouetteX =+ sil
-            #print sil
+            
         tSilhouette = time.clock() - t0
         print 'Índice Silhouette conjunto: ',;print silhouetteX/self.getNumMatrixRows(membershipMatrix)
         print 'Tiempo total índice Silhouette: ',;print tSilhouette
         print 'Relación: ',;print tSilhouette/i,;print 'segundos/instancia'
 
-'''
-Métodos para pruebas - En realidad no son métodos
-se trata de copiar el cuerpo del método al main y ejecutar
-pero es una manera cómoda de poner varias lineas sin
-molestar y sin hacer un comentario multilinea feo
-Grande Alberto! 
-:D :D
-'''
-def test1():
-    vec1=np.array([0.423481, 0.369929, 1.111249, 0.013840, 1.331685])
-    vec2=np.array([0.347326, 0.256732, 0.978557, 0.664598, 1.915115])
-    k = K_means(1,2,3,4,5,6)
-    dist = k.getDistance(1,vec1,vec2)
-    print "distancia mink alfa=1: " + str(dist)
-    dist = k.getDistance(2,vec1,vec2)
-    print "distancia mink alfa=2: " + str(dist)
-    
-def test2():
-    k = K_means(1,2,3,4,5,6)
-    print k.getNumFileRows("vectors_muy_peque.txt")
-    print k.getNumFileColumns("vectors_muy_peque.txt")
-    
-def test3():
-    k = K_means(1,2,3,4,5,6)
-    matrix = k.initializeInstances("vectors_muy_peque.txt")
-    
-    vector1 = k.getVector(matrix,3)
-    print vector1
 
-def test4():
-    k = K_means(1,2,3,4,5,6)
-    
-   
-    instancesMatrix,clustersMatrix,membershipMatrix = k.initializeMatrixes("vectors_peque.txt")
-    print instancesMatrix[1][1:]
-    print instancesMatrix[1:][1:2]
-    
-    for i in range (0,5):
-      conjuntoVectores1 = instancesMatrix[i,:]  
-      conjuntoVectores2 = instancesMatrix[i+10,:]    
-    
-    
-    print 'Conjunto vectores 1: '
-    print conjuntoVectores1
-    
-    print 'Conjunto vectores 2: '
-    print conjuntoVectores2
 
-    distanciaMin = k.singleLink(2,conjuntoVectores1,conjuntoVectores2)
-    distanciaMax = k.completeLink(2,conjuntoVectores1,conjuntoVectores2)
-    print "distanciaMin (singleLink): " + str(distanciaMin) #deberia dar una distancia bastante pequena porque no estoy tomando clusters reales y las instancias pueden estar muy mezcladas
-    print "distanciaMax (completeLink): " + str(distanciaMax)
-    #no soy capaz de interpretar si los resultados son correctos, podria hacer los calculos a mano pero da pereza.
-    #entran dentro de lo razonable puesto que la min es menor que uno y la max es 2 (para la prueba que he hecho yo)
-    #dado que los randoms generados estan entre 0 y 1 no me parece muy alocado que entre 2 grupos de 3 instancias las mas alejadas esten separadas por 2 unidades.
-    
-def test5():
-    #Probar lo de la matriz de pertenencia
-    print 'Matriz pertenencia DESPUES: '
-    kmeans.imprimirMatriz(membershipMatrix)        
-        
-    kmeans.closestCentroid(instancesMatrix,clustersMatrix,membershipMatrix)
-        
-    print 'Matriz pertenencia DESPUES: '
-    kmeans.imprimirMatriz(membershipMatrix)
-    
-def test6():
-   
-    k = K_means(5,'c',2,'s','a',300,'')
-    instancesMatrix,clustersMatrix,membershipMatrix,wordList = k.initializeMatrixes("vectors_peque.txt")
-    centroides = k.set2KCentroids(k.getNumMatrixColumns(instancesMatrix),instancesMatrix)
-    for centroide in centroides:
-        print centroide[2:4]
-       
-def test7():
-    kmeans = K_means(5,'c',2,'s','a',300,'')
-    instancesMatrix,clustersMatrix,membershipMatrix,wordList = kmeans.initializeMatrixes("vectors_peque.txt")
-    kmeans.clustering(instancesMatrix,clustersMatrix,membershipMatrix,wordList)
-    print kmeans.sse(clustersMatrix, membershipMatrix, instancesMatrix)
 
-def extraerFragmentoFichero():
-    
-    f = open('GoogleNews-vectors-negative300.txt','r')
-    f_out = open('GoogleNews10000.txt','w')
-    
-    for i in range (0,10000):
-        line = f.readline()
-        f_out.write(str(line))
-        
-    f.close()
-    f_out.close()
                 
     '''
     @post: Devuelve una lista con todas las palabras del 
@@ -929,11 +828,14 @@ def extraerFragmentoFichero():
             wordList[i,j] = str(word)
             
         return wordList
-        
+
+
+
+'''
+Métodos principales o de pruebas
+'''        
 def generalPerformanceTest():
     
-    
-
     
     performance_file = open('generalPerformanceTest.csv','a') #he cambiado esto para que haga append
     
@@ -946,8 +848,6 @@ def generalPerformanceTest():
     pca = ''
     
     performance_file.write('VARIANDO INICIALIZACION,Dist 0 => Cosine Distance en lugar de Minkwsk,criterio d=umbral,umbral=0.001' )
-    
-    
 
     #inicial inclusive final exclusive
     for j in range(1,4):
@@ -1043,7 +943,7 @@ def kPerformanceTest():
     if (Preprocesado.preMain()):
         print 'Parámetros correctos'
         
-        k = sys.argv[1]
+        #k = sys.argv[1]
         ini = sys.argv[2]
         minkwsk = sys.argv[3]
         inter = sys.argv[4]
@@ -1087,10 +987,6 @@ def kPerformanceTest():
 def tirarDelHilo():
     print 'K_means : main'
 
-    #kPerformanceTest()    
-    
-    #extraerFragmentoFichero()
-    
     
     if (Preprocesado.preMain()):
         print 'Parámetros correctos'
@@ -1122,14 +1018,11 @@ def tirarDelHilo():
         
         print 'parametros incorrectos'
 
-#para pruebas
+#Main
 if __name__=="__main__":
     
     tirarDelHilo()
-    #generalPerformanceTest()
-    #kPerformanceTest()    
     
-    #extraerFragmentoFichero()
     
     
     
